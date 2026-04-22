@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Navbar from '../../components/layout/Navbar';
 import StatusBadge from '../../components/ui/StatusBadge';
+import StatusUpdateModal from '../../components/actions/StatusUpdateModal';
 import { getActionsByOwner } from '../../data/mockActions';
 import type { Role } from '../../types/auth';
 import type { ActionItem, ActionStatus } from '../../types/actions';
@@ -44,6 +45,7 @@ export default function PersonalDashboard() {
   const firstName = user.name.split(' ')[0];
 
   const [actions, setActions] = useState<ActionItem[]>(() => getActionsByOwner(user!.role));
+  const [selectedAction, setSelectedAction] = useState<ActionItem | null>(null);
 
   const counts = useMemo(() => {
     const total = actions.length;
@@ -232,6 +234,7 @@ export default function PersonalDashboard() {
                   <tr
                     key={action.id}
                     className={`pd-row-${getRowState(action)}`}
+                    onClick={() => setSelectedAction(action)}
                   >
                     <td>
                       <span className="pd-action-id">{action.id}</span>
@@ -300,6 +303,7 @@ export default function PersonalDashboard() {
                       <select
                         className={`pd-status-select pd-status-select-${getRowState(action)}`}
                         value={action.status}
+                        onClick={(event) => event.stopPropagation()}
                         onChange={(event) =>
                           handleStatusUpdate(action.id, event.target.value as ActionStatus)
                         }
@@ -318,6 +322,18 @@ export default function PersonalDashboard() {
           </div>
         </div>
       </div>
+
+      <StatusUpdateModal
+        action={selectedAction}
+        open={!!selectedAction}
+        onClose={() => setSelectedAction(null)}
+        onSave={(updated) => {
+          setActions((current) =>
+            current.map((item) => (item.id === updated.id ? updated : item))
+          );
+          setSelectedAction(null);
+        }}
+      />
     </div>
   );
 }

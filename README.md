@@ -71,7 +71,9 @@ ecc_prototype_lupin/
 │   │   │
 │   │   ├── charts/
 │   │   │   ├── KPISummaryTiles.tsx        # Row of 5 KPI stat cards (totals/counts)
-│   │   │   └── ActionsByDepartmentBar.tsx # Stacked bar chart by department + status
+│   │   │   ├── GanttTimeline.tsx          # DONE ✅ — horizontal action deadline timeline
+│   │   │   ├── ActionsByDepartmentBar.tsx # Stacked bar chart by department + status
+│   │   │   └── GanttTimeline.css
 │   │   │
 │   │   ├── email/
 │   │   │   └── EmailAlertPreview.tsx  # Modal showing simulated T-3/overdue alert email
@@ -95,7 +97,7 @@ ecc_prototype_lupin/
 │       │   └── AdminDashboard.css
 │       │
 │       ├── CEODashboard/          # Route: /ceo-dashboard
-│       │   ├── index.tsx          # TODO 🔴 — CEO analytics + org-wide view
+│       │   ├── index.tsx          # DONE ✅ — CEO analytics dashboard with Recharts
 │       │   └── CEODashboard.css
 │       │
 │       ├── CreateMeetingPage/     # Route: /create-meeting
@@ -122,7 +124,7 @@ ecc_prototype_lupin/
 | `/` | LoginPage | All | ✅ Done |
 | `/personal-dashboard` | PersonalDashboard | Action Owners | ✅ Done |
 | `/admin-dashboard` | AdminDashboard | CEO Office Admin | ✅ Done |
-| `/ceo-dashboard` | CEODashboard | CEO | 🔴 Placeholder |
+| `/ceo-dashboard` | CEODashboard | CEO | ✅ Done |
 | `/create-meeting` | CreateMeetingPage | CEO Office Admin | ✅ Done |
 | `/email-preview` | EmailPreviewPage | All | ✅ Done |
 
@@ -188,6 +190,8 @@ Includes source meeting context, red overdue rows, amber deadline warning states
 3. Working Department and Status filters
 4. Search by action title or assignee
 5. Direct navigation to Create Meeting and Email Preview
+6. Quick drilldown chips: `All Departments` → `IT Focus` → `Rajesh Drilldown`
+7. Gantt-style timeline section based on currently filtered actions
 
 ---
 
@@ -215,37 +219,36 @@ Includes source meeting context, red overdue rows, amber deadline warning states
 
 ---
 
-### Feature 6 — CEO Analytics Dashboard 🔴 TODO
+### Feature 6 — CEO Analytics Dashboard ✅ DONE
 **File:** `src/pages/CEODashboard/index.tsx`
 
-**Must-have elements:**
-1. KPI tiles row — `KPISummaryTiles` (already built)
-2. Bar chart — `ActionsByDepartmentBar` (already built)
-3. Per-department breakdown table: Department · Total · Open · Overdue · Completion%
-4. Top 5 overdue items callout (filter `MOCK_ACTIONS` where `status === 'overdue'`, sort by `daysLeft` asc)
-5. Compliance Score ring — reuse SVG ring pattern from PersonalDashboard
+**Delivered:**
+1. KPI row with `Total Active`, `Closure Rate`, `Overdue Count`, and `Avg Days to Close`
+2. Recharts bar chart for `Action Items by Department`
+3. Department breakdown table with closure-rate and overdue visibility
+4. Top 5 overdue items panel for CEO risk review
 
-**Data:** `MOCK_ACTIONS`, `getActionStats()`, `getActionsByDepartment()` from `src/data/mockActions.ts`  
-**Components:** `KPISummaryTiles`, `ActionsByDepartmentBar` (both already built)  
-**Styles:** Write in `CEODashboard.css`
+**Data:** `MOCK_ACTIONS`, `getActionStats()` from `src/data/mockActions.ts`  
+**Library:** `recharts`
 
 ---
 
 ### Feature 7 — Status Update Modal ✅ WIRED
 **File:** `src/components/actions/StatusUpdateModal.tsx`  
-**Status:** Wired into `AdminDashboard` for row-level action updates.  
-The personal dashboard uses inline status updates directly inside the list instead of a modal flow.
+**Status:** Wired into `AdminDashboard`, `EmailPreviewPage` deep-link simulation, and click-to-open in `PersonalDashboard`.
+**Delivered:**
+1. `Blocked` flow requires a reason
+2. `Completed` flow supports notes plus evidence upload field
+3. Context-aware initialization and validation before save
 
 ---
 
-### Feature 8 — Gantt Timeline View (Nice-to-have) ⬜ NOT STARTED
-**Suggested location:** `src/components/charts/GanttTimeline.tsx`
-
-**Simple SVG approach (no library):**
-- X axis: date range from earliest to latest due date in MOCK_ACTIONS
-- One row per action item, colored bar from `createdAt` to `dueDateIso`
-- Color bars by status using `STATUS_BG` from `statusUtils.ts`
-- Vertical line for today's date (2026-04-22)
+### Feature 8 — Gantt Timeline View ✅ DONE
+**File:** `src/components/charts/GanttTimeline.tsx`  
+Horizontal timeline visualizing actions from `createdAt` to `dueDateIso` with:
+1. Status-colored bars
+2. `Today` marker
+3. Filter-aware data source (follows Admin dashboard drilldown filters)
 
 ---
 

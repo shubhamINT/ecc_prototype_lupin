@@ -295,6 +295,10 @@
   background: #fafbfc;
 }
 
+.pd-table tbody tr {
+  cursor: pointer;
+}
+
 .pd-row-overdue {
   background: #fff8f8;
 }

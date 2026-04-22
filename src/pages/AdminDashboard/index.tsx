@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MOCK_ACTIONS } from '../../data/mockActions';
 import type { ActionItem, Department } from '../../types/actions';
 import ActionsByDepartmentBar from '../../components/charts/ActionsByDepartmentBar';
+import GanttTimeline from '../../components/charts/GanttTimeline';
 import StatusBadge from '../../components/ui/StatusBadge';
 import StatusUpdateModal from '../../components/actions/StatusUpdateModal';
 import Navbar from '../../components/layout/Navbar';
@@ -80,6 +81,24 @@ export default function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const applyQuickView = (mode: 'all' | 'it' | 'rajesh') => {
+    if (mode === 'all') {
+      setDeptFilter('All');
+      setStatusFilter('All');
+      setSearchQuery('');
+      return;
+    }
+    if (mode === 'it') {
+      setDeptFilter('IT');
+      setStatusFilter('All');
+      setSearchQuery('');
+      return;
+    }
+    setDeptFilter('IT');
+    setStatusFilter('All');
+    setSearchQuery('Rajesh Satope');
+  };
+
   const filtered = useMemo(
     () =>
       actions.filter((a) => {
@@ -88,7 +107,9 @@ export default function AdminDashboard() {
         if (
           searchQuery &&
           !a.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          !a.assignedTo.toLowerCase().includes(searchQuery.toLowerCase())
+          !a.assignedTo.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          !a.meetingTitle.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          !a.id.toLowerCase().includes(searchQuery.toLowerCase())
         ) {
           return false;
         }
@@ -172,6 +193,27 @@ export default function AdminDashboard() {
         </div>
 
         <div className="admin-toolbar">
+          <div className="admin-quick-filters">
+            <button
+              className={`admin-quick-btn ${deptFilter === 'All' && statusFilter === 'All' && !searchQuery ? 'active' : ''}`}
+              onClick={() => applyQuickView('all')}
+            >
+              All Departments
+            </button>
+            <button
+              className={`admin-quick-btn ${deptFilter === 'IT' && !searchQuery ? 'active' : ''}`}
+              onClick={() => applyQuickView('it')}
+            >
+              IT Focus
+            </button>
+            <button
+              className={`admin-quick-btn ${deptFilter === 'IT' && searchQuery.toLowerCase() === 'rajesh satope'.toLowerCase() ? 'active' : ''}`}
+              onClick={() => applyQuickView('rajesh')}
+            >
+              Rajesh Drilldown
+            </button>
+          </div>
+
           <div className="admin-toolbar-search">
             <svg className="admin-search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <circle cx="6.5" cy="6.5" r="4.5" stroke="#94a3b8" strokeWidth="1.4" />
@@ -357,6 +399,10 @@ export default function AdminDashboard() {
         {/* Chart */}
         <div className="admin-chart-section">
           <ActionsByDepartmentBar />
+        </div>
+
+        <div className="admin-timeline-section">
+          <GanttTimeline actions={filtered} title="Gantt-Style Action Timeline" />
         </div>
       </div>
 

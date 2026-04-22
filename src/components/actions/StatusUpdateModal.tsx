@@ -14,7 +14,7 @@
  */
 
 import type { ActionItem, ActionStatus } from '../../types/actions';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Modal from '../ui/Modal';
 import StatusBadge from '../ui/StatusBadge';
 
@@ -30,15 +30,41 @@ const UPDATABLE_STATUSES: ActionStatus[] = ['in-progress', 'completed', 'blocked
 export default function StatusUpdateModal({ action, open, onClose, onSave }: Props) {
   const [status, setStatus] = useState<ActionStatus>('in-progress');
   const [note, setNote] = useState('');
+  const [evidenceName, setEvidenceName] = useState('');
+  const [error, setError] = useState('');
 
   if (!action) return null;
 
+  useEffect(() => {
+    if (!open || !action) return;
+    setStatus(action.status === 'open' || action.status === 'overdue' ? 'in-progress' : action.status);
+    setNote(action.completionNotes ?? action.blockedReason ?? '');
+    setEvidenceName('');
+    setError('');
+  }, [open, action]);
+
   const handleSave = () => {
+    if (status === 'blocked' && !note.trim()) {
+      setError('Blocked status requires a reason.');
+      return;
+    }
+    if (status === 'completed' && !note.trim() && !evidenceName) {
+      setError('Completed status needs completion notes or evidence upload.');
+      return;
+    }
+
+    const completionDetails =
+      status === 'completed'
+        ? [note.trim(), evidenceName ? `Evidence: ${evidenceName}` : '']
+            .filter(Boolean)
+            .join(' | ')
+        : action.completionNotes;
+
     onSave({
       ...action,
       status,
       blockedReason: status === 'blocked' ? note : action.blockedReason,
-      completionNotes: status === 'completed' ? note : action.completionNotes,
+      completionNotes: completionDetails,
       lastUpdated: '2026-04-22',
     });
     onClose();
@@ -89,6 +115,34 @@ export default function StatusUpdateModal({ action, open, onClose, onSave }: Pro
               }}
             />
           </div>
+        )}
+
+        {status === 'completed' && (
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Evidence Upload (optional)
+            </label>
+            <input
+              type="file"
+              onChange={(e) => setEvidenceName(e.target.files?.[0]?.name ?? '')}
+              style={{
+                width: '100%', marginTop: 8, padding: '10px 12px', borderRadius: 8,
+                border: '1.5px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit',
+                boxSizing: 'border-box', background: 'white',
+              }}
+            />
+            {evidenceName && (
+              <p style={{ margin: '6px 0 0', fontSize: 12, color: '#64748b' }}>
+                Attached: {evidenceName}
+              </p>
+            )}
+          </div>
+        )}
+
+        {error && (
+          <p style={{ margin: 0, fontSize: 12, color: '#dc2626', fontWeight: 600 }}>
+            {error}
+          </p>
         )}
 
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', paddingTop: 8 }}>
