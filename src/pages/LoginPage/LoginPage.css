@@ -55,6 +55,13 @@
   gap: 12px;
 }
 
+.login-logo-image {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
 .login-logo-text {
   font-size: 22px;
   font-weight: 800;

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLE_LABELS } from '../../types/auth';
+import { LUPIN_LOGO_URL } from '../../constants/branding';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -17,12 +18,8 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <div className="navbar-brand">
-        <div className="navbar-logo" style={{ display: 'flex', alignItems: 'center', background: 'transparent', width: 'auto', height: 'auto' }}>
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L22 12L12 22L2 12L12 2Z" fill="var(--color-primary)"/>
-            <path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2Z" fill="var(--color-primary)" opacity="0.3"/>
-            <path d="M12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6Z" fill="white" opacity="0.8"/>
-          </svg>
+        <div className="navbar-logo">
+          <img className="navbar-logo-image" src={LUPIN_LOGO_URL} alt="Lupin Diagnostics logo" />
         </div>
         <span className="navbar-brand-text">Lupin<span>Diagnostics</span></span>
       </div>

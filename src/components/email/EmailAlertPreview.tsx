@@ -15,6 +15,7 @@
 
 import type { ActionItem } from '../../types/actions';
 import Modal from '../ui/Modal';
+import { LUPIN_LOGO_URL } from '../../constants/branding';
 
 interface Props {
   action: ActionItem | null;
@@ -42,7 +43,14 @@ export default function EmailAlertPreview({ action, open, onClose }: Props) {
         {/* Email body */}
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 10, overflow: 'hidden' }}>
           <div style={{ background: alertColor, padding: '20px 24px', color: 'white' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', opacity: 0.8, marginBottom: 8 }}>LUPIN DIAGNOSTICS · ECC PLATFORM</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <img
+                src={LUPIN_LOGO_URL}
+                alt="Lupin Diagnostics logo"
+                style={{ width: 22, height: 22, objectFit: 'contain', borderRadius: 4, background: 'rgba(255,255,255,0.9)' }}
+              />
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', opacity: 0.9 }}>LUPIN DIAGNOSTICS · ECC PLATFORM</div>
+            </div>
             <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.5px' }}>{alertType}</div>
           </div>
           <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 16 }}>

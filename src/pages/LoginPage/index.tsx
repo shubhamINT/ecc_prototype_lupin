@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import type { Role } from '../../types/auth';
 import { MOCK_USERS, ROLE_LABELS, ROLE_DESCRIPTIONS } from '../../types/auth';
+import { LUPIN_LOGO_URL } from '../../constants/branding';
 import './LoginPage.css';
 
 type LoginMode = 'ceo-office-admin' | 'action-owner' | 'ceo';
@@ -62,10 +63,7 @@ export default function LoginPage() {
       <div className="login-left">
         <div className="login-brand">
           <div className="login-logo">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-              <rect width="36" height="36" rx="8" fill="#2563eb" />
-              <path d="M8 10h6l4 8 4-8h6l-10 16L8 10z" fill="white" />
-            </svg>
+            <img className="login-logo-image" src={LUPIN_LOGO_URL} alt="Lupin Diagnostics logo" />
             <span className="login-logo-text">ECC<span>Platform</span></span>
           </div>
           <p className="login-brand-tagline">Executive Control Center · Lupin Diagnostics</p>
