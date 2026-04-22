@@ -10,7 +10,7 @@ import Modal from '../../components/ui/Modal';
 import { MOCK_MEETINGS } from '../../data/mockMeetings';
 import Navbar from '../../components/layout/Navbar';
 import './AdminDashboard.css';
-
+ 
 const DEPT_COLORS: Record<string, { bg: string; text: string }> = {
   IT: { bg: '#eff6ff', text: '#1e40af' },
   Finance: { bg: '#f0fdf4', text: '#15803d' },
@@ -18,14 +18,14 @@ const DEPT_COLORS: Record<string, { bg: string; text: string }> = {
   HR: { bg: '#fdf4ff', text: '#7e22ce' },
   Marketing: { bg: '#fff1f2', text: '#be123c' },
 };
-
+ 
 const AVATAR_COLORS: Record<string, string> = {
   'head-of-it': '#1e40af',
   'head-of-finance': '#059669',
   'head-of-operations': '#d97706',
   'ceo-office-admin': '#0891b2',
 };
-
+ 
 function getInitials(name: string): string {
   return name
     .split(' ')
@@ -34,7 +34,7 @@ function getInitials(name: string): string {
     .toUpperCase()
     .slice(0, 2);
 }
-
+ 
 function getRowClass(action: ActionItem): string {
   if (action.status === 'overdue') return 'admin-row-overdue';
   if (action.daysLeft >= 0 && action.daysLeft <= 3 && action.status !== 'completed') {
@@ -42,7 +42,7 @@ function getRowClass(action: ActionItem): string {
   }
   return '';
 }
-
+ 
 const DEPT_OPTIONS: Array<Department | 'All'> = [
   'All',
   'IT',
@@ -60,12 +60,12 @@ const STATUS_DISPLAY: Record<string, string> = {
   completed: 'Completed',
   blocked: 'Blocked',
 };
-
+ 
 function toCsvCell(value: string | number) {
   const text = String(value).replace(/"/g, '""');
   return `"${text}"`;
 }
-
+ 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [actions, setActions] = useState<ActionItem[]>(MOCK_ACTIONS);
@@ -75,7 +75,7 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMeetingsModalOpen, setIsMeetingsModalOpen] = useState(false);
   const [expandedMeetingId, setExpandedMeetingId] = useState<string | null>(null);
-
+ 
   const applyQuickView = (mode: 'all' | 'it' | 'rajesh') => {
     if (mode === 'all') {
       setDeptFilter('All');
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
     setStatusFilter('All');
     setSearchQuery('Rajesh Satope');
   };
-
+ 
   const filtered = useMemo(
     () =>
       actions.filter((a) => {
@@ -112,7 +112,7 @@ export default function AdminDashboard() {
       }),
     [actions, deptFilter, searchQuery, statusFilter]
   );
-
+ 
   const summary = useMemo(() => {
     const total = filtered.length;
     const open = filtered.filter((a) => a.status === 'open').length;
@@ -123,10 +123,10 @@ export default function AdminDashboard() {
     const completed = filtered.filter((a) => a.status === 'completed').length;
     const owners = new Set(filtered.map((a) => a.assignedToId)).size;
     const meetings = new Set(filtered.map((a) => a.meetingId)).size;
-
+ 
     return { total, open, overdue, dueThisWeek, completed, owners, meetings };
   }, [filtered]);
-
+ 
   const exportFilteredActions = () => {
     if (filtered.length === 0) return;
     const headers = [
@@ -166,11 +166,11 @@ export default function AdminDashboard() {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   };
-
+ 
   return (
     <div className="admin-root">
       <Navbar />
-
+ 
       <div className="admin-body">
         {/* Header */}
         <div className="admin-header">
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
             </button>
           </div>
         </div>
-
+ 
         <div className="admin-summary-grid">
           <div className="admin-summary-card open">
             <p className="admin-summary-label">Open</p>
@@ -257,7 +257,7 @@ export default function AdminDashboard() {
             <p className="admin-summary-copy">Closed in the current view</p>
           </div>
         </div>
-
+ 
         <div className="admin-toolbar">
           <div className="admin-quick-filters">
             <button
@@ -279,7 +279,7 @@ export default function AdminDashboard() {
               Rajesh Drilldown
             </button>
           </div>
-
+ 
           <div className="admin-toolbar-search">
             <svg className="admin-search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <circle cx="6.5" cy="6.5" r="4.5" stroke="#94a3b8" strokeWidth="1.4" />
@@ -293,7 +293,7 @@ export default function AdminDashboard() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-
+ 
           <div className="admin-toolbar-filters">
             <select
               className="admin-filter-select"
@@ -306,7 +306,7 @@ export default function AdminDashboard() {
                 </option>
               ))}
             </select>
-
+ 
             <select
               className="admin-filter-select"
               value={statusFilter}
@@ -318,11 +318,11 @@ export default function AdminDashboard() {
                 </option>
               ))}
             </select>
-
+ 
             <span className="admin-result-count">
               {filtered.length} of {actions.length} actions
             </span>
-
+ 
             {(deptFilter !== 'All' || statusFilter !== 'All' || searchQuery) && (
               <button
                 className="admin-clear-btn"
@@ -337,13 +337,13 @@ export default function AdminDashboard() {
             )}
           </div>
         </div>
-
+ 
         <div className="admin-table-card">
           <div className="admin-table-header">
             <h2 className="admin-table-title">All Action Items</h2>
             <span className="admin-table-badge">{filtered.length} results</span>
           </div>
-
+ 
           <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
@@ -372,22 +372,22 @@ export default function AdminDashboard() {
                     text: '#475569',
                   };
                   const avatarColor = AVATAR_COLORS[action.assignedToId] ?? '#475569';
-
+ 
                   return (
                     <tr
                       key={action.id}
                       className={`admin-table-row ${getRowClass(action)}`}
-                      onClick={() => setSelectedAction(action)}
+                      onClick={(e) => {setSelectedAction(action); e.stopPropagation();}}
                     >
-                      <td>
+                      <td onClick ={(e) => e.stopPropagation()}>
                         <span className="admin-action-id">{action.id}</span>
                       </td>
-
-                      <td className="admin-action-title-cell">
+ 
+                      <td className="admin-action-title-cell" onClick={(e) => e.stopPropagation()}>
                         <span className="admin-action-title">{action.title}</span>
                       </td>
-
-                      <td>
+ 
+                      <td onClick={(e) => e.stopPropagation()}>
                         <div className="admin-assignee">
                           <div
                             className="admin-avatar"
@@ -398,8 +398,8 @@ export default function AdminDashboard() {
                           <span className="admin-assignee-name">{action.assignedTo}</span>
                         </div>
                       </td>
-
-                      <td>
+ 
+                      <td onClick={(e) => e.stopPropagation()}>
                         <span
                           className="admin-dept-pill"
                           style={{
@@ -410,18 +410,18 @@ export default function AdminDashboard() {
                           {action.department}
                         </span>
                       </td>
-
-                      <td>
+ 
+                      <td onClick={(e) => e.stopPropagation()}>
                         <span className="admin-meeting-name">{action.meetingTitle}</span>
                       </td>
-
-                      <td>
+ 
+                      <td onClick ={(e) => e.stopPropagation()}>
                         <span className={`admin-priority-pill admin-priority-${action.priority}`}>
                           {action.priority.charAt(0).toUpperCase() + action.priority.slice(1)}
                         </span>
                       </td>
-
-                      <td>
+ 
+                      <td onClick={(e) => e.stopPropagation()}>
                         <div className="admin-due-cell">
                           <span className="admin-due-date">{action.dueDate}</span>
                           {action.status !== 'completed' && (
@@ -443,28 +443,28 @@ export default function AdminDashboard() {
                           )}
                         </div>
                       </td>
-
-                      <td>
-                        <StatusBadge status={action.status} />
-                      </td>
-                    </tr>
+ 
+                     <td onClick={(e) => e.stopPropagation()}>
+                      <StatusBadge status={action.status} />
+                    </td>
+                  </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
         </div>
-
+ 
         {/* Chart */}
         <div className="admin-chart-section">
           <ActionsByDepartmentBar />
         </div>
-
+ 
         <div className="admin-timeline-section">
           <GanttTimeline actions={filtered} title="Gantt-Style Action Timeline" />
         </div>
       </div>
-
+ 
       <Modal
         open={isMeetingsModalOpen}
         onClose={() => setIsMeetingsModalOpen(false)}
@@ -500,7 +500,7 @@ export default function AdminDashboard() {
           ))}
         </div>
       </Modal>
-
+ 
       <StatusUpdateModal
         action={selectedAction}
         open={!!selectedAction}

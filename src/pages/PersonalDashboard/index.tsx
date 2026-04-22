@@ -8,7 +8,7 @@ import type { Role } from '../../types/auth';
 import type { ActionItem, ActionStatus } from '../../types/actions';
 import { ACTION_STATUS_LABELS, PRIORITY_LABELS } from '../../types/actions';
 import './PersonalDashboard.css';
-
+ 
 const STATUS_FILL: Record<string, string> = {
   open: '#94a3b8',
   'in-progress': '#1e40af',
@@ -16,7 +16,7 @@ const STATUS_FILL: Record<string, string> = {
   completed: '#16a34a',
   blocked: '#d97706',
 };
-
+ 
 const STATUS_OPTIONS: ActionStatus[] = [
   'open',
   'in-progress',
@@ -24,29 +24,29 @@ const STATUS_OPTIONS: ActionStatus[] = [
   'blocked',
   'completed',
 ];
-
+ 
 function getRowState(action: ActionItem) {
   if (action.status === 'completed') return 'completed';
   if (action.status === 'overdue' || action.daysLeft < 0) return 'overdue';
   if (action.daysLeft <= 7) return 'upcoming';
   return action.status;
 }
-
+ 
 function getUpdatedProgress(action: ActionItem, status: ActionStatus) {
   if (status === 'completed') return 100;
   if (status === 'in-progress') return Math.max(action.progress, 40);
   if (status === 'open') return Math.min(action.progress, 20);
   return action.progress;
 }
-
+ 
 export default function PersonalDashboard() {
   const { user } = useAuth();
   if (!user) return null;
   const firstName = user.name.split(' ')[0];
-
+ 
   const [actions, setActions] = useState<ActionItem[]>(() => getActionsByOwner(user!.role));
   const [selectedAction, setSelectedAction] = useState<ActionItem | null>(null);
-
+ 
   const counts = useMemo(() => {
     const total = actions.length;
     const open = actions.filter((a) => a.status === 'open').length;
@@ -57,10 +57,10 @@ export default function PersonalDashboard() {
     ).length;
     const completed = actions.filter((a) => a.status === 'completed').length;
     const meetings = new Set(actions.map((a) => a.meetingId)).size;
-
+ 
     return { total, open, inProgress, overdue, dueThisWeek, completed, meetings };
   }, [actions]);
-
+ 
   const sortedActions = useMemo(
     () =>
       [...actions].sort((a, b) => {
@@ -74,13 +74,13 @@ export default function PersonalDashboard() {
           open: 4,
           completed: 5,
         };
-
+ 
         if (rank[aState] !== rank[bState]) return rank[aState] - rank[bState];
         return a.daysLeft - b.daysLeft;
       }),
     [actions]
   );
-
+ 
   const handleStatusUpdate = (actionId: string, status: ActionStatus) => {
     setActions((current) =>
       current.map((action) =>
@@ -95,11 +95,11 @@ export default function PersonalDashboard() {
       )
     );
   };
-
+ 
   return (
     <div className="pd-root">
       <Navbar />
-
+ 
       <div className="pd-body">
         <div className="pd-header">
           <div className="pd-header-copy">
@@ -117,7 +117,7 @@ export default function PersonalDashboard() {
             22 Apr 2026
           </div>
         </div>
-
+ 
         <div className="pd-hero">
           <div className="pd-hero-card primary">
             <p className="pd-hero-label">Primary Owner</p>
@@ -140,7 +140,7 @@ export default function PersonalDashboard() {
             <p className="pd-hero-copy">Upcoming deadlines flagged below</p>
           </div>
         </div>
-
+ 
         <div className="pd-stats">
           <div className="pd-stat-card">
             <div className="pd-stat-icon open">
@@ -153,7 +153,7 @@ export default function PersonalDashboard() {
               <p className="pd-stat-label">Open</p>
             </div>
           </div>
-
+ 
           <div className="pd-stat-card">
             <div className="pd-stat-icon progress">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -165,7 +165,7 @@ export default function PersonalDashboard() {
               <p className="pd-stat-label">In Progress</p>
             </div>
           </div>
-
+ 
           <div className="pd-stat-card">
             <div className="pd-stat-icon overdue">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -177,7 +177,7 @@ export default function PersonalDashboard() {
               <p className="pd-stat-label">Overdue</p>
             </div>
           </div>
-
+ 
           <div className="pd-stat-card">
             <div className="pd-stat-icon due-soon">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -190,7 +190,7 @@ export default function PersonalDashboard() {
               <p className="pd-stat-label">Due This Week</p>
             </div>
           </div>
-
+ 
           <div className="pd-stat-card">
             <div className="pd-stat-icon completed">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -204,7 +204,7 @@ export default function PersonalDashboard() {
             </div>
           </div>
         </div>
-
+ 
         {/* Actions table */}
         <div className="pd-table-card">
           <div className="pd-table-header">
@@ -212,7 +212,7 @@ export default function PersonalDashboard() {
             <span className="pd-table-count">{counts.total} total</span>
             <span className="pd-table-hint">Update status directly from the list</span>
           </div>
-
+ 
           <div className="pd-table-wrap">
             <table className="pd-table">
               <thead>
@@ -296,25 +296,26 @@ export default function PersonalDashboard() {
                         <span className="pd-progress-pct">{action.progress}%</span>
                       </div>
                     </td>
-                    <td>
+                    <td onClick={(e) => e.stopPropagation()}>
                       <StatusBadge status={action.status} />
                     </td>
                     <td>
-                      <select
-                        className={`pd-status-select pd-status-select-${getRowState(action)}`}
-                        value={action.status}
-                        onClick={(event) => event.stopPropagation()}
-                        onChange={(event) =>
-                          handleStatusUpdate(action.id, event.target.value as ActionStatus)
-                        }
-                      >
-                        {STATUS_OPTIONS.map((status) => (
-                          <option key={status} value={status}>
-                            {ACTION_STATUS_LABELS[status]}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
+                    <select
+                      className={`pd-status-select pd-status-select-${getRowState(action)}`}
+                      value={action.status}
+                      /* Ensure this is present to prevent row-click crashes */
+                      onClick={(event) => event.stopPropagation()} 
+                      onChange={(event) =>
+                        handleStatusUpdate(action.id, event.target.value as ActionStatus)
+                      }
+                    >
+                      {STATUS_OPTIONS.map((status) => (
+                        <option key={status} value={status}>
+                          {ACTION_STATUS_LABELS[status]}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                   </tr>
                 ))}
               </tbody>
@@ -322,7 +323,7 @@ export default function PersonalDashboard() {
           </div>
         </div>
       </div>
-
+ 
       <StatusUpdateModal
         action={selectedAction}
         open={!!selectedAction}
@@ -337,7 +338,7 @@ export default function PersonalDashboard() {
     </div>
   );
 }
-
+ 
 const ROLE_COPY: Partial<Record<Role, string>> = {
   'head-of-it': 'Head of IT · Cross-meeting action visibility',
   'head-of-finance': 'Head of Finance · Compliance and closure tracking',

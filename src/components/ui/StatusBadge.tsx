@@ -1,11 +1,11 @@
 import type { ActionStatus } from '../../types/actions';
 import { ACTION_STATUS_LABELS } from '../../types/actions';
 import { STATUS_BG, STATUS_TEXT, STATUS_BORDER } from '../../utils/statusUtils';
-
+ 
 interface Props {
   status: ActionStatus;
 }
-
+ 
 export default function StatusBadge({ status }: Props) {
   return (
     <span
@@ -18,6 +18,8 @@ export default function StatusBadge({ status }: Props) {
         fontSize: 12,
         fontWeight: 600,
         whiteSpace: 'nowrap',
+        cursor: 'default', // Force the cursor to remain a standard arrow
+        userSelect: 'none', // Prevent accidental text highlighting
       }}
     >
       {ACTION_STATUS_LABELS[status]}

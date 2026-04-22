@@ -6,13 +6,12 @@ import CEODashboard from './pages/CEODashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import CreateMeetingPage from './pages/CreateMeetingPage';
 import EmailPreviewPage from './pages/EmailPreviewPage';
-
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
-
+ 
 function AppRoutes() {
   return (
     <Routes>
@@ -26,7 +25,7 @@ function AppRoutes() {
     </Routes>
   );
 }
-
+ 
 export default function App() {
   return (
     <BrowserRouter>
