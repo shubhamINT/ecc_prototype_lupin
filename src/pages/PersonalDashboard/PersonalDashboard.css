@@ -523,24 +523,95 @@
 .pd-status-overdue { background: #fee2e2; color: #dc2626; }
 .pd-status-completed { background: #ede9fe; color: #6d28d9; }
 
-/* ── Responsive ── */
-@media (max-width: 1100px) {
+/* ═══════════════════════════════════════
+   Responsive — large tablet (≤ 1200px)
+═══════════════════════════════════════ */
+@media (max-width: 1200px) {
+  .pd-body {
+    padding: 28px 24px 56px;
+  }
+
+  .pd-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ═══════════════════════════════════════
+   Responsive — tablet (≤ 1024px)
+═══════════════════════════════════════ */
+@media (max-width: 1024px) {
   .pd-hero {
     grid-template-columns: 1fr 1fr;
   }
 
   .pd-stats {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (max-width: 640px) {
+/* ═══════════════════════════════════════
+   Responsive — small tablet (≤ 768px)
+═══════════════════════════════════════ */
+@media (max-width: 768px) {
   .pd-body {
     padding: 20px 16px 48px;
+    gap: 20px;
   }
 
   .pd-header {
     flex-direction: column;
+    gap: 12px;
+  }
+
+  .pd-date {
+    align-self: flex-start;
+  }
+
+  .pd-hero {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pd-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pd-title {
+    font-size: 22px;
+  }
+
+  /* Table: only inner area scrolls, page stays locked */
+  .pd-table-card {
+    overflow: hidden;
+  }
+
+  .pd-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  .pd-table {
+    min-width: 900px;
+  }
+
+  .pd-table-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px;
+  }
+
+  .pd-table-hint {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════
+   Responsive — mobile (≤ 480px)
+═══════════════════════════════════════ */
+@media (max-width: 480px) {
+  .pd-body {
+    padding: 16px 12px 48px;
+    gap: 16px;
   }
 
   .pd-hero {
@@ -548,6 +619,14 @@
   }
 
   .pd-stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pd-hero-metric {
+    font-size: 28px;
+  }
+
+  .pd-stat-card {
+    padding: 16px;
   }
 }

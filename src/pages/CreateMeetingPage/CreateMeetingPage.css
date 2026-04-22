@@ -100,12 +100,51 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
+/* ═══════════════════════════════════════
+   Responsive — tablet (≤ 900px)
+═══════════════════════════════════════ */
 @media (max-width: 900px) {
   .cmp-shell {
-    padding: 24px 16px 48px;
+    padding: 24px 20px 48px;
   }
 
   .cmp-hero {
     grid-template-columns: 1fr;
+    margin: 18px 0 22px;
+    gap: 14px;
+  }
+
+  .cmp-meta-card {
+    padding: 18px 20px;
+  }
+
+  .cmp-meta-value {
+    font-size: 24px;
+  }
+}
+
+/* ═══════════════════════════════════════
+   Responsive — mobile (≤ 600px)
+═══════════════════════════════════════ */
+@media (max-width: 600px) {
+  .cmp-shell {
+    padding: 20px 16px 48px;
+  }
+
+  .cmp-title {
+    font-size: clamp(22px, 6vw, 32px);
+  }
+
+  .cmp-subtitle {
+    font-size: 14px;
+  }
+}
+
+/* ═══════════════════════════════════════
+   Responsive — small mobile (≤ 400px)
+═══════════════════════════════════════ */
+@media (max-width: 400px) {
+  .cmp-shell {
+    padding: 16px 12px 40px;
   }
 }

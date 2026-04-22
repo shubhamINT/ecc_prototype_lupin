@@ -232,7 +232,7 @@ export default function CEODashboard() {
           {upcomingMeetings.length === 0 ? (
             <p style={{ color: '#94a3b8', fontSize: 13, padding: '16px 0' }}>No upcoming meetings scheduled.</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', padding: '0 20px', overflow: 'hidden' }}>
               {upcomingMeetings.map((m, idx) => {
                 const isToday = m.daysUntil === 0;
                 const isSoon = m.daysUntil <= 7;
@@ -299,7 +299,7 @@ export default function CEODashboard() {
                       </div>
 
                       {/* Right: countdown + sync badge + buttons */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
                         <span style={{
                           padding: '4px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700,
                           background: urgencyBg, color: urgencyColor,
@@ -361,8 +361,8 @@ export default function CEODashboard() {
 
                     {/* Expandable Meeting Brief */}
                     {isOpen && m.keyPoints && (
-                      <div style={{
-                        margin: '0 0 16px 64px',
+                      <div className="ceo-brief-indent" style={{
+                        margin: '0 0 16px',
                         background: '#f8fafc',
                         border: '1.5px solid #e2e8f0',
                         borderRadius: 12,

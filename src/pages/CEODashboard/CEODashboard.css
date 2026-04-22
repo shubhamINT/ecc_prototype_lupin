@@ -195,6 +195,11 @@
   line-height: 1.5;
 }
 
+.ceo-brief-indent {
+  /* On desktop: visually aligned with meeting info (past the 50px date badge + 14px gap) */
+  margin-left: 64px;
+}
+
 .ceo-bottom-grid {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
@@ -273,6 +278,9 @@
   font-weight: 600;
 }
 
+/* ═══════════════════════════════════════
+   Responsive — tablet (≤ 980px)
+═══════════════════════════════════════ */
 @media (max-width: 980px) {
   .ceo-body {
     padding: 24px 16px 48px;
@@ -285,7 +293,7 @@
 
   .ceo-header-right {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
 
   .ceo-kpi-grid {
@@ -295,10 +303,64 @@
   .ceo-bottom-grid {
     grid-template-columns: 1fr;
   }
+
+  /* Chart horizontal scroll isolation */
+  .ceo-chart-card {
+    overflow: hidden;
+  }
+
+  .ceo-chart-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Meetings brief indent reduce */
+  .ceo-brief-indent {
+    margin-left: 0 !important;
+  }
 }
 
+/* ═══════════════════════════════════════
+   Responsive — mobile (≤ 620px)
+═══════════════════════════════════════ */
 @media (max-width: 620px) {
+  .ceo-body {
+    padding: 16px 12px 48px;
+    gap: 16px;
+  }
+
+  .ceo-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ceo-kpi-card h2 {
+    font-size: 28px;
+  }
+
+  .ceo-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ceo-table {
+    min-width: 400px;
+  }
+}
+
+/* ═══════════════════════════════════════
+   Responsive — small mobile (≤ 420px)
+═══════════════════════════════════════ */
+@media (max-width: 420px) {
   .ceo-kpi-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ceo-kpi-card {
+    padding: 14px 16px;
+  }
+
+  .ceo-header-right {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 }

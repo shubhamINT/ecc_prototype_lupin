@@ -131,9 +131,45 @@
   letter-spacing: 0.2px;
 }
 
+/* ═══════════════════════════════════════
+   Responsive — tablet (≤ 980px)
+═══════════════════════════════════════ */
 @media (max-width: 980px) {
   .gt-row {
     grid-template-columns: 1fr;
     gap: 6px;
+  }
+
+  .gt-bar-zone {
+    height: 20px;
+  }
+
+  .gt-bar {
+    height: 14px;
+  }
+}
+
+/* ═══════════════════════════════════════
+   Responsive — mobile (≤ 600px)
+═══════════════════════════════════════ */
+@media (max-width: 600px) {
+  .gt-rail-wrap {
+    padding: 14px 16px 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .gt-list {
+    min-width: 400px;
+  }
+
+  .gt-head {
+    padding: 14px 16px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .gt-title {
+    font-size: 12px;
   }
 }
