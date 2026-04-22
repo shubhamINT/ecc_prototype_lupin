@@ -89,7 +89,7 @@ ecc_prototype_lupin/
 │       │   └── LoginPage.css
 │       │
 │       ├── PersonalDashboard/     # Route: /personal-dashboard
-│       │   ├── index.tsx          # DONE ✅ — action owner view for Rajesh Satope
+│       │   ├── index.tsx          # DONE ✅ — action owner view by selected owner role
 │       │   └── PersonalDashboard.css
 │       │
 │       ├── AdminDashboard/        # Route: /admin-dashboard
@@ -167,15 +167,16 @@ All data lives in `src/data/`. Nothing is fetched from a server.
 
 ### Feature 1 — Login Page with Role Switcher ✅ DONE
 **File:** `src/pages/LoginPage/index.tsx`  
-Role switcher with 3 top-level modes: CEO Office Admin, Action Owner, CEO.  
-When "Action Owner" is selected, the admin can choose the specific owner and route straight to the matching dashboard.  
+Role switcher with 3 top-level modes in this order: CEO, CEO Office Admin, Action Owner.  
+No top-level role is preselected on initial load or return-to-login after logout.  
+When "Action Owner" is selected, the user can choose the specific owner and route straight to the matching dashboard.  
 **Demo:** Select "Head of IT" → shows Rajesh Satope's personal dashboard.
 
 ---
 
 ### Feature 2 — Personal Action Owner Dashboard ✅ DONE
 **File:** `src/pages/PersonalDashboard/index.tsx`  
-Shows Rajesh Satope's consolidated IT action list across multiple meetings.  
+Shows the selected action owner's consolidated action list across multiple meetings.  
 Includes source meeting context, red overdue rows, amber deadline warning states, and inline status update dropdowns directly in the table.
 
 ---
