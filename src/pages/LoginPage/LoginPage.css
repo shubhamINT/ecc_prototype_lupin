@@ -403,6 +403,19 @@
   box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
 }
 
+.login-btn:disabled {
+  background: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-btn:disabled:hover {
+  background: #94a3b8;
+  box-shadow: none;
+  transform: none;
+}
+
 .login-disclaimer {
   font-size: 12px;
   color: #94a3b8;

@@ -14,6 +14,11 @@ const LOGIN_MODES: Array<{
   description: string;
 }> = [
   {
+    id: 'ceo',
+    label: 'CEO',
+    description: 'Executive view across departments and risk hotspots',
+  },
+  {
     id: 'ceo-office-admin',
     label: 'CEO Office Admin',
     description: 'Command center for all actions, meetings, and owners',
@@ -22,11 +27,6 @@ const LOGIN_MODES: Array<{
     id: 'action-owner',
     label: 'Action Owner',
     description: 'Personal dashboard for department heads and assignees',
-  },
-  {
-    id: 'ceo',
-    label: 'CEO',
-    description: 'Executive view across departments and risk hotspots',
   },
 ];
 
@@ -45,15 +45,22 @@ const ROLE_ROUTES: Record<Role, string> = {
 };
 
 export default function LoginPage() {
-  const [selectedMode, setSelectedMode] = useState<LoginMode>('action-owner');
+  const [selectedMode, setSelectedMode] = useState<LoginMode | null>(null);
   const [selectedOwnerRole, setSelectedOwnerRole] = useState<Role>('head-of-it');
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const selectedRole: Role =
-    selectedMode === 'action-owner' ? selectedOwnerRole : selectedMode;
+  const selectedRole: Role | null =
+    selectedMode === null
+      ? null
+      : selectedMode === 'action-owner'
+        ? selectedOwnerRole
+        : selectedMode;
+
+  const canLogin = selectedRole !== null;
 
   const handleLogin = () => {
+    if (!selectedRole) return;
     login(selectedRole);
     navigate(ROLE_ROUTES[selectedRole]);
   };
@@ -166,8 +173,8 @@ export default function LoginPage() {
             </div>
           )}
 
-          <button className="login-btn" onClick={handleLogin}>
-            Login as {ROLE_LABELS[selectedRole]}
+          <button className="login-btn" onClick={handleLogin} disabled={!canLogin}>
+            {canLogin ? `Login as ${ROLE_LABELS[selectedRole]}` : 'Select a role to continue'}
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M3 9h12M10 5l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

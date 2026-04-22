@@ -41,12 +41,12 @@ function getUpdatedProgress(action: ActionItem, status: ActionStatus) {
  
 export default function PersonalDashboard() {
   const { user } = useAuth();
-  if (!user) return null;
-  const firstName = user.name.split(' ')[0];
- 
-  const [actions, setActions] = useState<ActionItem[]>(() => getActionsByOwner(user!.role));
+
+  const [actions, setActions] = useState<ActionItem[]>(() =>
+    user ? getActionsByOwner(user.role) : []
+  );
   const [selectedAction, setSelectedAction] = useState<ActionItem | null>(null);
- 
+
   const counts = useMemo(() => {
     const total = actions.length;
     const open = actions.filter((a) => a.status === 'open').length;
@@ -57,10 +57,10 @@ export default function PersonalDashboard() {
     ).length;
     const completed = actions.filter((a) => a.status === 'completed').length;
     const meetings = new Set(actions.map((a) => a.meetingId)).size;
- 
+
     return { total, open, inProgress, overdue, dueThisWeek, completed, meetings };
   }, [actions]);
- 
+
   const sortedActions = useMemo(
     () =>
       [...actions].sort((a, b) => {
@@ -74,12 +74,15 @@ export default function PersonalDashboard() {
           open: 4,
           completed: 5,
         };
- 
+
         if (rank[aState] !== rank[bState]) return rank[aState] - rank[bState];
         return a.daysLeft - b.daysLeft;
       }),
     [actions]
   );
+
+  if (!user) return null;
+  const firstName = user.name.split(' ')[0];
  
   const handleStatusUpdate = (actionId: string, status: ActionStatus) => {
     setActions((current) =>

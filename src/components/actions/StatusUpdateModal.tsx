@@ -33,8 +33,6 @@ export default function StatusUpdateModal({ action, open, onClose, onSave }: Pro
   const [evidenceName, setEvidenceName] = useState('');
   const [error, setError] = useState('');
 
-  if (!action) return null;
-
   useEffect(() => {
     if (!open || !action) return;
     setStatus(action.status === 'open' || action.status === 'overdue' ? 'in-progress' : action.status);
@@ -42,6 +40,8 @@ export default function StatusUpdateModal({ action, open, onClose, onSave }: Pro
     setEvidenceName('');
     setError('');
   }, [open, action]);
+
+  if (!action) return null;
 
   const handleSave = () => {
     if (status === 'blocked' && !note.trim()) {
