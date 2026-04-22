@@ -15,6 +15,11 @@ import './CEODashboard.css';
 const DEPARTMENTS = ['IT', 'Finance', 'Operations', 'HR', 'Marketing'] as const;
 const BAR_COLORS = ['#1e40af', '#059669', '#d97706', '#7c3aed', '#be123c'];
 
+function toCsvCell(value: string | number) {
+  const text = String(value).replace(/"/g, '""');
+  return `"${text}"`;
+}
+
 function dayDiff(startIso: string, endIso: string) {
   const start = new Date(startIso);
   const end = new Date(endIso);
@@ -89,6 +94,41 @@ export default function CEODashboard() {
     .sort((a, b) => a.daysLeft - b.daysLeft)
     .slice(0, 5);
 
+  const exportExecutiveView = () => {
+    const rows: Array<Array<string | number>> = [
+      ['Section', 'Metric', 'Value'],
+      ['KPI', 'Total Active', kpis.totalActive],
+      ['KPI', 'Closure Rate', `${kpis.closureRate}%`],
+      ['KPI', 'Overdue Count', kpis.overdueCount],
+      ['KPI', 'Avg Days to Close', kpis.avgDaysToClose],
+    ];
+
+    departmentData.forEach((row) => {
+      rows.push(['Department', `${row.department} Total`, row.total]);
+      rows.push(['Department', `${row.department} Completed`, row.completed]);
+      rows.push(['Department', `${row.department} In Progress`, row.inProgress]);
+      rows.push(['Department', `${row.department} Overdue`, row.overdue]);
+      rows.push(['Department', `${row.department} Closure Rate`, `${row.closureRate}%`]);
+    });
+
+    topOverdue.forEach((item) => {
+      rows.push(['Top Overdue', item.id, `${item.title} | ${item.assignedTo} | ${Math.abs(item.daysLeft)}d overdue`]);
+    });
+
+    const csvContent = rows
+      .map((row) => row.map((cell) => toCsvCell(cell)).join(','))
+      .join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `ecc-ceo-export-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="ceo-root">
       <Navbar />
@@ -102,7 +142,16 @@ export default function CEODashboard() {
               Snapshot of action volume, closure performance, and department-level risk.
             </p>
           </div>
-          <div className="ceo-date-chip">22 Apr 2026</div>
+          <div className="ceo-header-right">
+            <button className="ceo-export-btn" onClick={exportExecutiveView}>
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                <path d="M7.5 2.5v7M4.5 6.5l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M2.5 11.5h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+              </svg>
+              Export CSV
+            </button>
+            <div className="ceo-date-chip">22 Apr 2026</div>
+          </div>
         </header>
 
         <section className="ceo-kpi-grid">

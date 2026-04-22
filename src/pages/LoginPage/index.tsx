@@ -63,7 +63,7 @@ export default function LoginPage() {
         <div className="login-brand">
           <div className="login-logo">
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-              <rect width="36" height="36" rx="8" fill="var(--color-primary)" />
+              <rect width="36" height="36" rx="8" fill="#2563eb" />
               <path d="M8 10h6l4 8 4-8h6l-10 16L8 10z" fill="white" />
             </svg>
             <span className="login-logo-text">ECC<span>Platform</span></span>

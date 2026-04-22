@@ -61,6 +61,11 @@ const STATUS_DISPLAY: Record<string, string> = {
   blocked: 'Blocked',
 };
 
+function toCsvCell(value: string | number) {
+  const text = String(value).replace(/"/g, '""');
+  return `"${text}"`;
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [actions, setActions] = useState<ActionItem[]>(MOCK_ACTIONS);
@@ -122,6 +127,46 @@ export default function AdminDashboard() {
     return { total, open, overdue, dueThisWeek, completed, owners, meetings };
   }, [filtered]);
 
+  const exportFilteredActions = () => {
+    if (filtered.length === 0) return;
+    const headers = [
+      'Action ID',
+      'Title',
+      'Assignee',
+      'Department',
+      'Meeting',
+      'Priority',
+      'Due Date',
+      'Status',
+      'Days Left',
+      'Last Updated',
+    ];
+    const rows = filtered.map((action) => [
+      action.id,
+      action.title,
+      action.assignedTo,
+      action.department,
+      action.meetingTitle,
+      action.priority,
+      action.dueDate,
+      action.status,
+      action.daysLeft,
+      action.lastUpdated,
+    ]);
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((cell) => toCsvCell(cell)).join(','))
+      .join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `ecc-actions-export-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="admin-root">
       <Navbar />
@@ -155,6 +200,18 @@ export default function AdminDashboard() {
                 <path d="M1 5l6.5 4L14 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
               </svg>
               Email Alerts
+            </button>
+            <button
+              className="admin-btn-secondary"
+              onClick={exportFilteredActions}
+              disabled={filtered.length === 0}
+              title={filtered.length === 0 ? 'No rows available for export' : 'Export visible rows'}
+            >
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                <path d="M7.5 2.5v7M4.5 6.5l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M2.5 11.5h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+              </svg>
+              Export CSV
             </button>
             <button
               className="admin-btn-primary"

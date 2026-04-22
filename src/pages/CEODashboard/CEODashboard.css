@@ -22,6 +22,12 @@
   align-items: flex-start;
 }
 
+.ceo-header-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .ceo-eyebrow {
   display: inline-flex;
   padding: 5px 10px;
@@ -60,6 +66,26 @@
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.ceo-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #dbe4f0;
+  background: white;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.ceo-export-btn:hover {
+  border-color: #cbd5e1;
+  color: #0f172a;
 }
 
 .ceo-kpi-grid {
@@ -255,6 +281,11 @@
   .ceo-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .ceo-header-right {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .ceo-kpi-grid {

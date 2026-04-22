@@ -123,6 +123,14 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
+.admin-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+  box-shadow: none;
+}
+
 .admin-summary-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));

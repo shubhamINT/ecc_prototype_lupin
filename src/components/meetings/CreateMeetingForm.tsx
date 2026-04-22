@@ -4,6 +4,55 @@ import { MOCK_USERS } from '../../types/auth';
 import type { Priority } from '../../types/actions';
 import './CreateMeetingForm.css';
 
+const SAMPLE_TRANSCRIPT = `[00:02] Priya Sharma: Let's begin with the IT security audit. Rajesh, where are we on the MFA rollout?
+
+[00:05] Rajesh Satope: We're at about 60% completion. Remaining plant systems need to be done by end of April. It's tight but feasible.
+
+[00:08] Priya Sharma: Okay. That's a high priority — make it a formal action item. MFA rollout complete by April 28th. Rajesh, you own that.
+
+[00:11] Priya Sharma: Moving on — Finance update. Neha, the Q1 capex variance?
+
+[00:13] Neha Patel: We have three items flagged. I need to prepare a variance report for the CEO's review. I can have it ready by April 30th.
+
+[00:15] Priya Sharma: Good. Action item two — Neha to prepare Q1 capex variance report by April 30th. High priority.
+
+[00:18] Arjun Mehta: On vendor contracts — two of our SLA agreements expire in Q2. If we don't start renewal now we're looking at a breach risk. I can initiate the process and target May 10th.
+
+[00:21] Priya Sharma: Please do that, Arjun. That's action item three — medium priority, May 10th deadline.
+
+[00:24] Priya Sharma: Also flagging — the DR drill sign-off is 12 days overdue. Rajesh, that needs immediate escalation. No further delay acceptable.
+
+[00:27] Rajesh Satope: Understood. I'll have sign-off by this Friday.
+
+[00:29] Priya Sharma: Agreed. I'll log it as a separate high-priority item in ECC. Let's wrap — all action owners to update ECC within 24 hours.`;
+
+const GENERATED_MOM_HTML = `<p><strong>Agenda:</strong> Q1 compliance review, IT infrastructure security audit, Finance capex variance analysis, and vendor contract renewals.</p>
+<p><strong>Decisions Taken:</strong></p>
+<ul>
+<li>MFA rollout to be completed across all plant systems by 28 April 2026 — Rajesh Satope confirmed feasibility</li>
+<li>Finance to prepare Q1 capex variance report for CEO review by 30 April — Neha Patel to lead</li>
+<li>Vendor SLA contract renewal process to be initiated immediately — Arjun Mehta assigned, target 10 May</li>
+<li>DR drill sign-off escalated to CEO Office — 12 days overdue, Friday deadline agreed</li>
+</ul>
+<p><strong>Key Discussion Points:</strong></p>
+<ul>
+<li>IT flagged SOX compliance module upgrade timeline risk — potential audit window miss if delayed further</li>
+<li>Finance confirmed Q4 audit findings partially addressed; two items still open for resolution</li>
+<li>Operations flagged SLA breach risk on two vendor contracts expiring Q2 — early renewal critical</li>
+</ul>
+<p><strong>Escalations &amp; Risks:</strong></p>
+<ul>
+<li>IT-DR (DR Drill sign-off) — escalated to CEO Office; 12 days overdue, no prior update from owner</li>
+<li>FIN-AUDIT (Q4 audit findings) — Finance head to resolve before next review cycle</li>
+</ul>
+<p><strong>Next Steps:</strong> All action items logged in ECC Platform with owners, deadlines, and priority levels. Automated T-3 day reminders will trigger for each open item.</p>`;
+
+const GENERATED_ACTIONS: Array<{ title: string; assignedTo: string; dueDate: string; priority: Priority }> = [
+  { title: 'Complete MFA rollout across all plant systems', assignedTo: 'Rajesh Satope', dueDate: '2026-04-28', priority: 'high' },
+  { title: 'Prepare Q1 capex variance report for CEO review', assignedTo: 'Neha Patel', dueDate: '2026-04-30', priority: 'high' },
+  { title: 'Initiate vendor SLA contract renewal — Q2 expiry risk', assignedTo: 'Arjun Mehta', dueDate: '2026-05-10', priority: 'medium' },
+];
+
 interface MeetingForm {
   title: string;
   date: string;
@@ -70,6 +119,10 @@ export default function CreateMeetingForm() {
   const [actionItems, setActionItems] = useState<ActionForm[]>([
     createEmptyAction('action-1'),
   ]);
+  const [momInputMode, setMomInputMode] = useState<'write' | 'transcript'>('write');
+  const [transcriptText, setTranscriptText] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiGenerated, setAiGenerated] = useState(false);
 
   const momText = useMemo(() => getPlainText(momHtml), [momHtml]);
   const wordCount = momText === '' ? 0 : momText.split(/\s+/).length;
@@ -134,6 +187,26 @@ export default function CreateMeetingForm() {
     setActionItems((current) =>
       current.map((item) => (item.id === id ? { ...item, [field]: value } : item))
     );
+  };
+
+  const handleGenerateMOM = () => {
+    if (!transcriptText.trim()) return;
+    setIsGenerating(true);
+    window.setTimeout(() => {
+      setMomHtml(GENERATED_MOM_HTML);
+      if (editorRef.current) {
+        editorRef.current.innerHTML = GENERATED_MOM_HTML;
+      }
+      setActionItems(
+        GENERATED_ACTIONS.map((a, i) => ({
+          ...createEmptyAction(`ai-action-${i + 1}`),
+          ...a,
+        }))
+      );
+      setIsGenerating(false);
+      setAiGenerated(true);
+      setMomInputMode('write');
+    }, 2600);
   };
 
   const validateStep = (targetStep: number) => {
@@ -312,39 +385,122 @@ export default function CreateMeetingForm() {
             <section className="cmf-section">
               <div className="cmf-section-header">
                 <h2>Minutes of Meeting</h2>
-                <p>Use the rich text box to capture decisions, escalations, and agreed next steps.</p>
+                <p>Write MOM manually, or paste the meeting transcript and let ECC generate structured minutes automatically.</p>
               </div>
 
-              <div className="cmf-editor-card">
-                <div className="cmf-editor-toolbar">
-                  <button type="button" onClick={() => applyEditorCommand('bold')}>Bold</button>
-                  <button type="button" onClick={() => applyEditorCommand('insertUnorderedList')}>Bullets</button>
-                  <button type="button" onClick={() => applyEditorCommand('insertOrderedList')}>Numbers</button>
-                </div>
-                <div
-                  ref={editorRef}
-                  className="cmf-editor"
-                  contentEditable
-                  suppressContentEditableWarning
-                  onInput={handleEditorInput}
-                  dangerouslySetInnerHTML={{ __html: momHtml }}
-                />
-                <div className="cmf-editor-footer">
-                  <span>{wordCount} words</span>
-                  <button
-                    type="button"
-                    className="cmf-link-btn"
-                    onClick={() => {
-                      setMomHtml(MOM_TEMPLATE);
-                      if (editorRef.current) {
-                        editorRef.current.innerHTML = MOM_TEMPLATE;
-                      }
-                    }}
-                  >
-                    Reset template
-                  </button>
-                </div>
+              <div className="cmf-tab-row">
+                <button
+                  type="button"
+                  className={`cmf-tab-btn ${momInputMode === 'write' ? 'active' : ''}`}
+                  onClick={() => setMomInputMode('write')}
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M2 10.5V12h1.5l4.42-4.42-1.5-1.5L2 10.5zM11.71 3.29a1 1 0 000-1.42l-1.08-1.08a1 1 0 00-1.42 0L8.1 1.9l2.5 2.5 1.11-1.11z" fill="currentColor"/>
+                  </svg>
+                  Write MOM
+                </button>
+                <button
+                  type="button"
+                  className={`cmf-tab-btn ${momInputMode === 'transcript' ? 'active' : ''}`}
+                  onClick={() => setMomInputMode('transcript')}
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.3"/>
+                    <path d="M4 5h6M4 7.5h6M4 10h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                  </svg>
+                  Paste Transcript
+                  <span className="cmf-tab-ai-chip">AI</span>
+                </button>
+                {aiGenerated && (
+                  <span className="cmf-ai-generated-badge">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <circle cx="6" cy="6" r="5.5" fill="#7c3aed" fillOpacity="0.15" stroke="#7c3aed" strokeWidth="1"/>
+                      <path d="M3.5 6l1.8 1.8 3.2-3.6" stroke="#7c3aed" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    MOM generated from transcript
+                  </span>
+                )}
               </div>
+
+              {momInputMode === 'transcript' ? (
+                <div className="cmf-transcript-panel">
+                  <div className="cmf-transcript-header">
+                    <div>
+                      <p className="cmf-transcript-title">Paste your meeting transcript</p>
+                      <p className="cmf-transcript-hint">ECC will extract decisions, escalations, and action items automatically.</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="cmf-link-btn"
+                      onClick={() => setTranscriptText(SAMPLE_TRANSCRIPT)}
+                    >
+                      Load sample
+                    </button>
+                  </div>
+                  <textarea
+                    className="cmf-transcript-area"
+                    value={transcriptText}
+                    onChange={(e) => setTranscriptText(e.target.value)}
+                    placeholder="Paste the raw meeting transcript here. Include speaker names and timestamps if available — ECC uses these to identify owners and assign action items."
+                    rows={12}
+                  />
+                  <div className="cmf-transcript-footer">
+                    <span className="cmf-transcript-wordcount">
+                      {transcriptText.trim() ? `${transcriptText.trim().split(/\s+/).length} words` : '0 words'}
+                    </span>
+                    {isGenerating ? (
+                      <div className="cmf-generating">
+                        <div className="cmf-spinner" />
+                        <span>Analysing transcript and extracting action items…</span>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="cmf-generate-btn"
+                        disabled={!transcriptText.trim()}
+                        onClick={handleGenerateMOM}
+                      >
+                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                          <path d="M7.5 1L9.18 5.31L14 5.93L10.55 9.19L11.56 14L7.5 11.77L3.44 14L4.45 9.19L1 5.93L5.82 5.31L7.5 1Z" fill="currentColor" fillOpacity="0.9"/>
+                        </svg>
+                        Generate MOM with AI
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="cmf-editor-card">
+                  <div className="cmf-editor-toolbar">
+                    <button type="button" onClick={() => applyEditorCommand('bold')}>Bold</button>
+                    <button type="button" onClick={() => applyEditorCommand('insertUnorderedList')}>Bullets</button>
+                    <button type="button" onClick={() => applyEditorCommand('insertOrderedList')}>Numbers</button>
+                  </div>
+                  <div
+                    ref={editorRef}
+                    className="cmf-editor"
+                    contentEditable
+                    suppressContentEditableWarning
+                    onInput={handleEditorInput}
+                    dangerouslySetInnerHTML={{ __html: momHtml }}
+                  />
+                  <div className="cmf-editor-footer">
+                    <span>{wordCount} words</span>
+                    <button
+                      type="button"
+                      className="cmf-link-btn"
+                      onClick={() => {
+                        setMomHtml(MOM_TEMPLATE);
+                        setAiGenerated(false);
+                        if (editorRef.current) {
+                          editorRef.current.innerHTML = MOM_TEMPLATE;
+                        }
+                      }}
+                    >
+                      Reset template
+                    </button>
+                  </div>
+                </div>
+              )}
             </section>
           )}
 
