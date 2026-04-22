@@ -74,7 +74,7 @@ export default function EmailPreviewPage() {
       <main className="ep-body">
         <header className="ep-header">
           <div>
-            <span className="ep-eyebrow">Phase 5 · Simulated Alert Workflow</span>
+            <span className="ep-eyebrow">System Alerts & Reminders</span>
             <h1 className="ep-title">Automated email alert preview with deep-link status update</h1>
             <p className="ep-subtitle">
               This screen demonstrates how ECC automatically nudges action owners and routes them

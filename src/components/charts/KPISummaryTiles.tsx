@@ -14,14 +14,14 @@ import { getActionStats } from '../../data/mockActions';
 
 export default function KPISummaryTiles() {
   const stats = getActionStats();
-  const closureRate = Math.round((stats.completed / stats.total) * 100);
 
   const tiles = [
-    { label: 'Total Actions', value: stats.total, color: '#1e40af', bg: '#eff6ff' },
+    { label: 'Total Actions', value: stats.total, color: 'var(--color-primary)', bg: '#eff6ff' },
     { label: 'Open', value: stats.open, color: '#475569', bg: '#f1f5f9' },
+    { label: 'In Progress', value: stats.inProgress, color: 'var(--color-primary)', bg: '#eff6ff' },
+    { label: 'Blocked', value: stats.blocked, color: '#9333ea', bg: '#f3e8ff' },
     { label: 'Overdue', value: stats.overdue, color: '#dc2626', bg: '#fef2f2' },
-    { label: 'Due This Week', value: stats.dueThisWeek, color: '#d97706', bg: '#fffbeb' },
-    { label: 'Closure Rate', value: `${closureRate}%`, color: '#16a34a', bg: '#f0fdf4' },
+    { label: 'Completed', value: stats.completed, color: '#16a34a', bg: '#f0fdf4' },
   ];
 
   return (

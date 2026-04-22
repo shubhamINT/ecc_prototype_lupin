@@ -63,7 +63,7 @@ export default function LoginPage() {
         <div className="login-brand">
           <div className="login-logo">
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-              <rect width="36" height="36" rx="8" fill="#1e40af" />
+              <rect width="36" height="36" rx="8" fill="var(--color-primary)" />
               <path d="M8 10h6l4 8 4-8h6l-10 16L8 10z" fill="white" />
             </svg>
             <span className="login-logo-text">ECC<span>Platform</span></span>
@@ -101,7 +101,7 @@ export default function LoginPage() {
         <div className="login-card">
           <div className="login-card-header">
             <h2>Sign in to ECC Platform</h2>
-            <p>Choose the role view you want to demo</p>
+            <p>Select your role to access your dashboard</p>
           </div>
 
           <div className="login-role-section">
@@ -127,7 +127,7 @@ export default function LoginPage() {
                       {active && (
                         <div className="login-role-check">
                           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <circle cx="8" cy="8" r="8" fill="#1e40af" />
+                            <circle cx="8" cy="8" r="8" fill="var(--color-primary)" />
                             <path d="M5 8l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         </div>

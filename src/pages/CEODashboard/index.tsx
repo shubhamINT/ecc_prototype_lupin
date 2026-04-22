@@ -5,7 +5,6 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  Cell,
   CartesianGrid,
   XAxis,
   YAxis,
@@ -28,10 +27,12 @@ function buildDepartmentData() {
     const items = MOCK_ACTIONS.filter((item) => item.department === dept);
     const completed = items.filter((item) => item.status === 'completed').length;
     const overdue = items.filter((item) => item.status === 'overdue').length;
+    const inProgress = items.filter((item) => ['in-progress', 'open', 'blocked'].includes(item.status)).length;
     return {
       department: dept,
       total: items.length,
       completed,
+      inProgress,
       overdue,
       closureRate: items.length ? Math.round((completed / items.length) * 100) : 0,
       color: BAR_COLORS[index],
@@ -61,7 +62,7 @@ function CustomTooltip({
   payload,
 }: {
   active?: boolean;
-  payload?: Array<{ payload: { department: string; total: number; overdue: number; closureRate: number } }>;
+  payload?: Array<{ payload: { department: string; total: number; completed: number; inProgress: number; overdue: number; closureRate: number } }>;
 }) {
   if (!active || !payload || payload.length === 0) return null;
   const row = payload[0].payload;
@@ -69,7 +70,9 @@ function CustomTooltip({
     <div className="ceo-tooltip">
       <p className="ceo-tooltip-title">{row.department}</p>
       <p>Total Actions: {row.total}</p>
-      <p>Overdue: {row.overdue}</p>
+      <p style={{color: '#10b981'}}>Completed: {row.completed}</p>
+      <p style={{color: 'var(--color-primary)'}}>In Progress: {row.inProgress}</p>
+      <p style={{color: '#ef4444'}}>Overdue: {row.overdue}</p>
       <p>Closure Rate: {row.closureRate}%</p>
     </div>
   );
@@ -93,7 +96,7 @@ export default function CEODashboard() {
       <main className="ceo-body">
         <header className="ceo-header">
           <div>
-            <span className="ceo-eyebrow">Phase 6 · Analytics Dashboard</span>
+            <span className="ceo-eyebrow">Executive Overview</span>
             <h1 className="ceo-title">Executive analytics view for CEO decision making</h1>
             <p className="ceo-subtitle">
               Snapshot of action volume, closure performance, and department-level risk.
@@ -104,20 +107,32 @@ export default function CEODashboard() {
 
         <section className="ceo-kpi-grid">
           <article className="ceo-kpi-card active">
-            <p>Total Active</p>
+            <div className="ceo-kpi-header">
+              <p>Total Active</p>
+            </div>
             <h2>{kpis.totalActive}</h2>
+            <div className="ceo-trend" style={{ color: '#059669', fontSize: '12px', fontWeight: 600, marginTop: '8px' }}>↑ 8% from last month</div>
           </article>
           <article className="ceo-kpi-card closure">
-            <p>Closure Rate</p>
+            <div className="ceo-kpi-header">
+              <p>Closure Rate</p>
+            </div>
             <h2>{kpis.closureRate}%</h2>
+            <div className="ceo-trend" style={{ color: '#059669', fontSize: '12px', fontWeight: 600, marginTop: '8px' }}>↑ 4% from last month</div>
           </article>
           <article className="ceo-kpi-card overdue">
-            <p>Overdue Count</p>
+            <div className="ceo-kpi-header">
+              <p>Overdue Count</p>
+            </div>
             <h2>{kpis.overdueCount}</h2>
+            <div className="ceo-trend" style={{ color: '#ef4444', fontSize: '12px', fontWeight: 600, marginTop: '8px' }}>↑ 12% from last month</div>
           </article>
           <article className="ceo-kpi-card avg">
-            <p>Avg Days to Close</p>
+            <div className="ceo-kpi-header">
+              <p>Avg Days to Close</p>
+            </div>
             <h2>{kpis.avgDaysToClose}d</h2>
+            <div className="ceo-trend" style={{ color: '#059669', fontSize: '12px', fontWeight: 600, marginTop: '8px' }}>↓ 2.5d from last month</div>
           </article>
         </section>
 
@@ -136,11 +151,9 @@ export default function CEODashboard() {
                 <XAxis dataKey="department" tick={{ fill: '#64748b', fontSize: 12 }} />
                 <YAxis allowDecimals={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="total" radius={[8, 8, 0, 0]}>
-                  {departmentData.map((entry) => (
-                    <Cell key={entry.department} fill={entry.color} />
-                  ))}
-                </Bar>
+                <Bar dataKey="completed" stackId="a" fill="#10b981" name="Completed" />
+                <Bar dataKey="inProgress" stackId="a" fill="var(--color-primary)" name="In Progress" />
+                <Bar dataKey="overdue" stackId="a" fill="#ef4444" name="Overdue" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

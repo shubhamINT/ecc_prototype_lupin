@@ -23,7 +23,7 @@ export default function CreateMeetingPage() {
 
         <div className="cmp-hero">
           <div className="cmp-hero-copy">
-            <span className="cmp-eyebrow">Phase 4 · Meeting + MOM Creation</span>
+            <span className="cmp-eyebrow">Meeting Management</span>
             <h1 className="cmp-title">Create a new meeting record and turn discussion into owned actions</h1>
             <p className="cmp-subtitle">
               This is the daily workflow for the CEO Office admin: capture the meeting, document the minutes, and assign owners before the conversation goes cold.

@@ -6,6 +6,8 @@ import ActionsByDepartmentBar from '../../components/charts/ActionsByDepartmentB
 import GanttTimeline from '../../components/charts/GanttTimeline';
 import StatusBadge from '../../components/ui/StatusBadge';
 import StatusUpdateModal from '../../components/actions/StatusUpdateModal';
+import Modal from '../../components/ui/Modal';
+import { MOCK_MEETINGS } from '../../data/mockMeetings';
 import Navbar from '../../components/layout/Navbar';
 import './AdminDashboard.css';
 
@@ -41,20 +43,6 @@ function getRowClass(action: ActionItem): string {
   return '';
 }
 
-function getDaysLeftClass(daysLeft: number, status: ActionItem['status']): string {
-  if (status === 'completed') return 'admin-days-left ok';
-  if (daysLeft < 0) return 'admin-days-left neg';
-  if (daysLeft <= 3) return 'admin-days-left warn';
-  return 'admin-days-left ok';
-}
-
-function formatDaysLeft(daysLeft: number, status: ActionItem['status']): string {
-  if (status === 'completed') return '—';
-  if (daysLeft < 0) return `${Math.abs(daysLeft)}d overdue`;
-  if (daysLeft === 0) return 'Due today';
-  return `${daysLeft}d left`;
-}
-
 const DEPT_OPTIONS: Array<Department | 'All'> = [
   'All',
   'IT',
@@ -80,6 +68,8 @@ export default function AdminDashboard() {
   const [deptFilter, setDeptFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMeetingsModalOpen, setIsMeetingsModalOpen] = useState(false);
+  const [expandedMeetingId, setExpandedMeetingId] = useState<string | null>(null);
 
   const applyQuickView = (mode: 'all' | 'it' | 'rajesh') => {
     if (mode === 'all') {
@@ -149,6 +139,15 @@ export default function AdminDashboard() {
           <div className="admin-header-actions">
             <button
               className="admin-btn-secondary"
+              onClick={() => setIsMeetingsModalOpen(true)}
+            >
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                <path d="M2.5 4.5h10M2.5 7.5h10M2.5 10.5h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              {MOCK_MEETINGS.length} Meetings
+            </button>
+            <button
+              className="admin-btn-secondary"
               onClick={() => navigate('/email-preview')}
             >
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -174,6 +173,16 @@ export default function AdminDashboard() {
             <p className="admin-summary-label">Open</p>
             <p className="admin-summary-value">{summary.open}</p>
             <p className="admin-summary-copy">Awaiting owner progress</p>
+          </div>
+          <div className="admin-summary-card in-progress" style={{ background: '#f0f9ff', borderColor: '#bae6fd' }}>
+            <p className="admin-summary-label" style={{ color: '#0369a1' }}>In Progress</p>
+            <p className="admin-summary-value" style={{ color: '#0369a1' }}>{filtered.filter(a => a.status === 'in-progress').length}</p>
+            <p className="admin-summary-copy" style={{ color: '#0284c7' }}>Currently being worked on</p>
+          </div>
+          <div className="admin-summary-card blocked" style={{ background: '#faf5ff', borderColor: '#e9d5ff' }}>
+            <p className="admin-summary-label" style={{ color: '#7e22ce' }}>Blocked</p>
+            <p className="admin-summary-value" style={{ color: '#7e22ce' }}>{filtered.filter(a => a.status === 'blocked').length}</p>
+            <p className="admin-summary-copy" style={{ color: '#9333ea' }}>Requires immediate unblocking</p>
           </div>
           <div className="admin-summary-card overdue">
             <p className="admin-summary-label">Overdue</p>
@@ -289,14 +298,13 @@ export default function AdminDashboard() {
                   <th>Meeting</th>
                   <th>Priority</th>
                   <th>Due Date</th>
-                  <th>Days Left</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="admin-empty-row">
+                    <td colSpan={8} className="admin-empty-row">
                       No actions match the current filters.
                     </td>
                   </tr>
@@ -380,12 +388,6 @@ export default function AdminDashboard() {
                       </td>
 
                       <td>
-                        <span className={getDaysLeftClass(action.daysLeft, action.status)}>
-                          {formatDaysLeft(action.daysLeft, action.status)}
-                        </span>
-                      </td>
-
-                      <td>
                         <StatusBadge status={action.status} />
                       </td>
                     </tr>
@@ -405,6 +407,42 @@ export default function AdminDashboard() {
           <GanttTimeline actions={filtered} title="Gantt-Style Action Timeline" />
         </div>
       </div>
+
+      <Modal
+        open={isMeetingsModalOpen}
+        onClose={() => setIsMeetingsModalOpen(false)}
+        title="Meeting Records & MOM Viewer"
+        width={700}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '65vh', overflowY: 'auto' }}>
+          {MOCK_MEETINGS.map((m) => (
+            <div
+              key={m.id}
+              style={{
+                border: '1px solid #e2e8f0',
+                borderRadius: '10px',
+                padding: '16px',
+                cursor: 'pointer',
+                background: expandedMeetingId === m.id ? '#f8fafc' : 'white',
+              }}
+              onClick={() => setExpandedMeetingId(expandedMeetingId === m.id ? null : m.id)}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ margin: 0, color: '#0f172a', fontSize: '15px', fontWeight: 700 }}>{m.title}</span>
+                <span style={{ fontSize: '13px', color: '#64748b' }}>{m.date} · {m.actionItemIds.length} actions</span>
+              </div>
+              {expandedMeetingId === m.id && (
+                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }} onClick={(e) => e.stopPropagation()}>
+                  <p style={{ margin: '0 0 8px', fontSize: '11px', fontWeight: 700, color: '#475569' }}>MINUTES OF MEETING</p>
+                  <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '13px', color: '#334155', background: '#f1f5f9', padding: '12px', borderRadius: '8px' }}>
+                    {m.momText}
+                  </pre>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </Modal>
 
       <StatusUpdateModal
         action={selectedAction}
