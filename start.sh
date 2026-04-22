@@ -3,9 +3,9 @@
 set -e
 
 echo "Pulling latest changes from git..."
-git pull
+git pull origin master
 
 echo "Building and starting Docker containers..."
 docker compose up -d --build
 
-echo "Done! App is running in Docker (accessible on port 3000)."
+echo "Done! App is running in Docker (accessible on port 4003)."
