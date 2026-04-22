@@ -18,6 +18,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 72,
     createdAt: '2026-03-05',
     lastUpdated: '2026-04-18',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-18',
   },
   {
     id: 'IT-002',
@@ -35,6 +37,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 45,
     createdAt: '2026-03-05',
     lastUpdated: '2026-04-15',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-15',
   },
   {
     id: 'IT-003',
@@ -52,6 +56,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 60,
     createdAt: '2026-03-05',
     lastUpdated: '2026-04-10',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-10',
   },
   {
     id: 'IT-004',
@@ -70,6 +76,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     blockedReason: 'Waiting for network team sign-off on migration plan',
     createdAt: '2026-03-05',
     lastUpdated: '2026-04-20',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-20',
   },
   {
     id: 'IT-005',
@@ -88,6 +96,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     completionNotes: 'All 12 vendors assessed. 2 escalated to procurement for contract review.',
     createdAt: '2026-03-05',
     lastUpdated: '2026-02-27',
+    calendarSynced: true,
+    lastCalendarSync: '2026-02-27',
   },
   {
     id: 'IT-006',
@@ -105,6 +115,7 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 18,
     createdAt: '2026-04-01',
     lastUpdated: '2026-04-10',
+    calendarSynced: false,
   },
   // ── Finance Department ──
   {
@@ -123,6 +134,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 85,
     createdAt: '2026-03-10',
     lastUpdated: '2026-04-19',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-19',
   },
   {
     id: 'FIN-002',
@@ -141,6 +154,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     completionNotes: 'Report submitted to CEO Office on 17 Apr. Variance: 3.2% under budget.',
     createdAt: '2026-03-10',
     lastUpdated: '2026-04-17',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-17',
   },
   {
     id: 'FIN-003',
@@ -158,6 +173,7 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 10,
     createdAt: '2026-03-10',
     lastUpdated: '2026-04-05',
+    calendarSynced: false,
   },
   {
     id: 'FIN-004',
@@ -175,6 +191,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 55,
     createdAt: '2026-04-01',
     lastUpdated: '2026-04-20',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-20',
   },
   // ── Operations Department ──
   {
@@ -193,6 +211,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 65,
     createdAt: '2026-03-15',
     lastUpdated: '2026-04-18',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-18',
   },
   {
     id: 'OPS-002',
@@ -210,6 +230,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 40,
     createdAt: '2026-03-15',
     lastUpdated: '2026-04-12',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-12',
   },
   {
     id: 'OPS-003',
@@ -227,6 +249,7 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 30,
     createdAt: '2026-03-15',
     lastUpdated: '2026-04-01',
+    calendarSynced: false,
   },
   {
     id: 'OPS-004',
@@ -244,6 +267,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 50,
     createdAt: '2026-03-15',
     lastUpdated: '2026-04-19',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-19',
   },
   // ── HR & Cross-functional ──
   {
@@ -262,6 +287,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 70,
     createdAt: '2026-04-01',
     lastUpdated: '2026-04-14',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-14',
   },
   {
     id: 'MKT-001',
@@ -279,6 +306,7 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 0,
     createdAt: '2026-04-01',
     lastUpdated: '2026-04-01',
+    calendarSynced: false,
   },
   // --- New Mock Data Below ---
   {
@@ -297,6 +325,7 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 0,
     createdAt: '2026-04-10',
     lastUpdated: '2026-04-10',
+    calendarSynced: false,
   },
   {
     id: 'IT-008',
@@ -314,6 +343,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 60,
     createdAt: '2026-04-05',
     lastUpdated: '2026-04-18',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-18',
   },
   {
     id: 'IT-009',
@@ -332,6 +363,7 @@ export const MOCK_ACTIONS: ActionItem[] = [
     blockedReason: 'Pending budget approval from CFO',
     createdAt: '2026-03-25',
     lastUpdated: '2026-04-22',
+    calendarSynced: false,
   },
   {
     id: 'IT-010',
@@ -349,6 +381,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 80,
     createdAt: '2026-04-02',
     lastUpdated: '2026-04-19',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-19',
   },
   {
     id: 'FIN-005',
@@ -366,6 +400,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 40,
     createdAt: '2026-04-15',
     lastUpdated: '2026-04-20',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-20',
   },
   {
     id: 'FIN-006',
@@ -383,6 +419,7 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 0,
     createdAt: '2026-04-10',
     lastUpdated: '2026-04-10',
+    calendarSynced: false,
   },
   {
     id: 'FIN-007',
@@ -401,6 +438,7 @@ export const MOCK_ACTIONS: ActionItem[] = [
     blockedReason: 'Awaiting revised quote from Siemens',
     createdAt: '2026-04-05',
     lastUpdated: '2026-04-21',
+    calendarSynced: false,
   },
   {
     id: 'OPS-005',
@@ -418,6 +456,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 50,
     createdAt: '2026-04-01',
     lastUpdated: '2026-04-15',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-15',
   },
   {
     id: 'OPS-006',
@@ -435,6 +475,7 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 0,
     createdAt: '2026-04-15',
     lastUpdated: '2026-04-15',
+    calendarSynced: false,
   },
   {
     id: 'OPS-007',
@@ -452,6 +493,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 90,
     createdAt: '2026-04-02',
     lastUpdated: '2026-04-16',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-16',
   },
   {
     id: 'HR-002',
@@ -469,6 +512,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 85,
     createdAt: '2026-03-01',
     lastUpdated: '2026-04-20',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-20',
   },
   {
     id: 'HR-003',
@@ -486,6 +531,7 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 10,
     createdAt: '2026-04-15',
     lastUpdated: '2026-04-18',
+    calendarSynced: false,
   },
   {
     id: 'HR-004',
@@ -503,6 +549,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 60,
     createdAt: '2026-03-20',
     lastUpdated: '2026-04-15',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-15',
   },
   {
     id: 'IT-011',
@@ -520,6 +568,8 @@ export const MOCK_ACTIONS: ActionItem[] = [
     progress: 30,
     createdAt: '2026-04-12',
     lastUpdated: '2026-04-21',
+    calendarSynced: true,
+    lastCalendarSync: '2026-04-21',
   }
 ];
 

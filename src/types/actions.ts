@@ -21,6 +21,8 @@ export interface ActionItem {
   completionNotes?: string;
   createdAt: string;
   lastUpdated: string;
+  calendarSynced?: boolean;
+  lastCalendarSync?: string;
 }
 
 export const ACTION_STATUS_LABELS: Record<ActionStatus, string> = {

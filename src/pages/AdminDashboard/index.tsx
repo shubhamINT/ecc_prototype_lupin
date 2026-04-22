@@ -7,6 +7,8 @@ import GanttTimeline from '../../components/charts/GanttTimeline';
 import StatusBadge from '../../components/ui/StatusBadge';
 import StatusUpdateModal from '../../components/actions/StatusUpdateModal';
 import Modal from '../../components/ui/Modal';
+import AddMeetingToCalendarButton from '../../components/ui/AddMeetingToCalendarButton';
+import CalendarSyncToast from '../../components/ui/CalendarSyncToast';
 import { MOCK_MEETINGS } from '../../data/mockMeetings';
 import Navbar from '../../components/layout/Navbar';
 import './AdminDashboard.css';
@@ -75,6 +77,7 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMeetingsModalOpen, setIsMeetingsModalOpen] = useState(false);
   const [expandedMeetingId, setExpandedMeetingId] = useState<string | null>(null);
+  const [syncedAction, setSyncedAction] = useState<ActionItem | null>(null);
  
   const applyQuickView = (mode: 'all' | 'it' | 'rajesh') => {
     if (mode === 'all') {
@@ -484,12 +487,40 @@ export default function AdminDashboard() {
               }}
               onClick={() => setExpandedMeetingId(expandedMeetingId === m.id ? null : m.id)}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ margin: 0, color: '#0f172a', fontSize: '15px', fontWeight: 700 }}>{m.title}</span>
-                <span style={{ fontSize: '13px', color: '#64748b' }}>{m.date} · {m.actionItemIds.length} actions</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                <div>
+                  <span style={{ margin: 0, color: '#0f172a', fontSize: '15px', fontWeight: 700 }}>{m.title}</span>
+                  <div style={{ marginTop: 4, fontSize: '12px', color: '#64748b' }}>
+                    {m.date} · {m.actionItemIds.length} actions · {m.department}
+                  </div>
+                </div>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <AddMeetingToCalendarButton meeting={m} />
+                </div>
               </div>
               {expandedMeetingId === m.id && (
                 <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }} onClick={(e) => e.stopPropagation()}>
+                  <div style={{ marginBottom: 12 }}>
+                    <p style={{ margin: '0 0 6px', fontSize: '11px', fontWeight: 700, color: '#475569' }}>PARTICIPANTS</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {m.participants.map((name) => (
+                        <span
+                          key={name}
+                          style={{
+                            padding: '3px 10px',
+                            borderRadius: 999,
+                            fontSize: 11,
+                            fontWeight: 600,
+                            background: '#eff6ff',
+                            color: '#1e40af',
+                            border: '1px solid #bfdbfe',
+                          }}
+                        >
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                   <p style={{ margin: '0 0 8px', fontSize: '11px', fontWeight: 700, color: '#475569' }}>MINUTES OF MEETING</p>
                   <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '13px', color: '#334155', background: '#f1f5f9', padding: '12px', borderRadius: '8px' }}>
                     {m.momText}
@@ -506,12 +537,16 @@ export default function AdminDashboard() {
         open={!!selectedAction}
         onClose={() => setSelectedAction(null)}
         onSave={(updated) => {
+          const synced = { ...updated, calendarSynced: true, lastCalendarSync: '2026-04-22' };
           setActions((prev) =>
-            prev.map((a) => (a.id === updated.id ? updated : a))
+            prev.map((a) => (a.id === updated.id ? synced : a))
           );
+          setSyncedAction(synced);
           setSelectedAction(null);
         }}
       />
+
+      <CalendarSyncToast action={syncedAction} onDismiss={() => setSyncedAction(null)} />
     </div>
   );
 }

@@ -9,6 +9,8 @@ export interface Meeting {
   momText: string;
   actionItemIds: string[];
   createdAt: string;
+  calendarSynced?: boolean;
+  keyPoints?: string[];
 }
 
 export interface MOMEntry {

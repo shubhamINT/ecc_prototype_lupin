@@ -4,6 +4,7 @@ import Navbar from '../../components/layout/Navbar';
 import StatusBadge from '../../components/ui/StatusBadge';
 import StatusUpdateModal from '../../components/actions/StatusUpdateModal';
 import AddToCalendarButton from '../../components/ui/AddToCalendarButton';
+import CalendarSyncToast from '../../components/ui/CalendarSyncToast';
 import { getActionsByOwner } from '../../data/mockActions';
 import type { Role } from '../../types/auth';
 import type { ActionItem, ActionStatus } from '../../types/actions';
@@ -47,6 +48,7 @@ export default function PersonalDashboard() {
     user ? getActionsByOwner(user.role) : []
   );
   const [selectedAction, setSelectedAction] = useState<ActionItem | null>(null);
+  const [syncedAction, setSyncedAction] = useState<ActionItem | null>(null);
 
   const counts = useMemo(() => {
     const total = actions.length;
@@ -86,18 +88,23 @@ export default function PersonalDashboard() {
   const firstName = user.name.split(' ')[0];
  
   const handleStatusUpdate = (actionId: string, status: ActionStatus) => {
+    let synced: ActionItem | null = null;
     setActions((current) =>
-      current.map((action) =>
-        action.id === actionId
-          ? {
-              ...action,
-              status,
-              progress: getUpdatedProgress(action, status),
-              lastUpdated: '2026-04-22',
-            }
-          : action
-      )
+      current.map((action) => {
+        if (action.id !== actionId) return action;
+        const updated = {
+          ...action,
+          status,
+          progress: getUpdatedProgress(action, status),
+          lastUpdated: '2026-04-22',
+          calendarSynced: true,
+          lastCalendarSync: '2026-04-22',
+        };
+        synced = updated;
+        return updated;
+      })
     );
+    if (synced) setSyncedAction(synced);
   };
  
   return (
@@ -321,7 +328,26 @@ export default function PersonalDashboard() {
                     </select>
                   </td>
                     <td onClick={(e) => e.stopPropagation()}>
-                      <AddToCalendarButton action={action} compact />
+                      {action.calendarSynced ? (
+                        <span
+                          title={`Auto-synced on ${action.lastCalendarSync ?? 'unknown'}`}
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 4,
+                            padding: '4px 8px', borderRadius: 999,
+                            background: '#f0fdf4', border: '1px solid #bbf7d0',
+                            fontSize: 11, fontWeight: 700, color: '#16a34a',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                            <circle cx="5" cy="5" r="4" fill="#16a34a" />
+                            <path d="M3 5l1.5 1.5L7 3.5" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          Synced
+                        </span>
+                      ) : (
+                        <AddToCalendarButton action={action} compact />
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -336,12 +362,16 @@ export default function PersonalDashboard() {
         open={!!selectedAction}
         onClose={() => setSelectedAction(null)}
         onSave={(updated) => {
+          const synced = { ...updated, calendarSynced: true, lastCalendarSync: '2026-04-22' };
           setActions((current) =>
-            current.map((item) => (item.id === updated.id ? updated : item))
+            current.map((item) => (item.id === updated.id ? synced : item))
           );
+          setSyncedAction(synced);
           setSelectedAction(null);
         }}
       />
+
+      <CalendarSyncToast action={syncedAction} onDismiss={() => setSyncedAction(null)} />
     </div>
   );
 }
