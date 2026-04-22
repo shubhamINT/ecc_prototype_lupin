@@ -332,7 +332,7 @@
 }
 
 .ceo-num-inprogress {
-  color: #1e40af;
+  color: var(--color-primary);
 }
 
 .ceo-num-overdue {

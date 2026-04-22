@@ -1,375 +1,209 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Navbar from '../../components/layout/Navbar';
+import StatusUpdateModal from '../../components/actions/StatusUpdateModal';
 import { MOCK_ACTIONS } from '../../data/mockActions';
+import type { ActionItem } from '../../types/actions';
+import './EmailPreviewPage.css';
 
-const DEMO_IDS = ['IT-003', 'IT-004', 'IT-001'];
-const TABS = ['Overdue Alert', 'T-3 Reminder', 'Upcoming Deadline'];
+const EMAIL_SCENARIOS: Array<{
+  id: string;
+  label: string;
+  helper: string;
+}> = [
+  { id: 'IT-003', label: 'Overdue Alert', helper: 'Escalation email for overdue items' },
+  { id: 'IT-004', label: 'T-3 Reminder', helper: 'Reminder email before deadline' },
+  { id: 'IT-001', label: 'Upcoming Deadline', helper: 'Early warning follow-up' },
+];
+
+function getEmailMeta(action: ActionItem) {
+  const isOverdue = action.daysLeft < 0;
+  const isT3 = !isOverdue && action.daysLeft <= 3;
+  const alertType = isOverdue
+    ? 'OVERDUE ALERT'
+    : isT3
+    ? 'T-3 DAY REMINDER'
+    : 'UPCOMING DEADLINE';
+  const alertColor = isOverdue ? '#dc2626' : isT3 ? '#d97706' : '#1e40af';
+
+  return { isOverdue, alertType, alertColor };
+}
+
+function ownerEmail(name: string) {
+  return `${name.toLowerCase().replace(/\s+/g, '.')}@lupindiagnostics.com`;
+}
 
 export default function EmailPreviewPage() {
-  const [activeTab, setActiveTab] = useState(0);
-  const [toastVisible, setToastVisible] = useState(false);
+  const [actions, setActions] = useState<ActionItem[]>(MOCK_ACTIONS);
+  const [activeScenarioId, setActiveScenarioId] = useState(EMAIL_SCENARIOS[1].id);
+  const [statusModalAction, setStatusModalAction] = useState<ActionItem | null>(null);
+  const [deepLink, setDeepLink] = useState('');
+  const [toast, setToast] = useState('');
 
-  const action = MOCK_ACTIONS.find((a) => a.id === DEMO_IDS[activeTab]) ?? null;
+  const activeAction = useMemo(
+    () => actions.find((item) => item.id === activeScenarioId) ?? null,
+    [actions, activeScenarioId]
+  );
 
-  const isOverdue = action ? action.daysLeft < 0 : false;
-  const alertType = action
-    ? isOverdue
-      ? 'OVERDUE ALERT'
-      : action.daysLeft <= 3
-      ? 'T-3 DAY REMINDER'
-      : 'UPCOMING DEADLINE'
-    : '';
-  const alertColor = action
-    ? isOverdue
-      ? '#dc2626'
-      : action.daysLeft <= 3
-      ? '#d97706'
-      : '#1e40af'
-    : '#1e40af';
+  const emailMeta = activeAction ? getEmailMeta(activeAction) : null;
 
-  const handleUpdateStatus = () => {
-    setToastVisible(true);
-    setTimeout(() => setToastVisible(false), 3000);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(''), 2600);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const openStatusUpdate = () => {
+    if (!activeAction) return;
+    const link = `ecc://actions/${activeAction.id}?source=email-alert&tier=t-3`;
+    setDeepLink(link);
+    setStatusModalAction(activeAction);
+  };
+
+  const handleSaveStatus = (updated: ActionItem) => {
+    setActions((current) =>
+      current.map((item) => (item.id === updated.id ? updated : item))
+    );
+    setStatusModalAction(null);
+    setToast(`Status updated for ${updated.id}`);
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="ep-root">
       <Navbar />
 
-      <div style={{ padding: '40px 32px 64px', maxWidth: 760, margin: '0 auto' }}>
-        {/* Page header */}
-        <div style={{ marginBottom: 32 }}>
-          <h1
-            style={{
-              fontSize: 26,
-              fontWeight: 800,
-              color: '#0f172a',
-              margin: '0 0 6px',
-              letterSpacing: '-0.6px',
-            }}
-          >
-            Email Alert Preview
-          </h1>
-          <p style={{ color: '#64748b', margin: 0, fontSize: 14 }}>
-            Preview automated alert emails sent by ECC Platform to action owners.
-          </p>
-        </div>
+      <main className="ep-body">
+        <header className="ep-header">
+          <div>
+            <span className="ep-eyebrow">Phase 5 · Simulated Alert Workflow</span>
+            <h1 className="ep-title">Automated email alert preview with deep-link status update</h1>
+            <p className="ep-subtitle">
+              This screen demonstrates how ECC automatically nudges action owners and routes them
+              directly into a status update flow.
+            </p>
+          </div>
+        </header>
 
-        {/* Tab buttons */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 28, flexWrap: 'wrap' }}>
-          {TABS.map((tab, i) => {
-            const isActive = activeTab === i;
-            const tabColor = i === 0 ? '#dc2626' : i === 1 ? '#d97706' : '#1e40af';
+        <section className="ep-scenario-row">
+          {EMAIL_SCENARIOS.map((scenario) => {
+            const active = scenario.id === activeScenarioId;
+            const scenarioAction = actions.find((item) => item.id === scenario.id);
+            const scenarioMeta = scenarioAction ? getEmailMeta(scenarioAction) : null;
+
             return (
               <button
-                key={tab}
-                onClick={() => setActiveTab(i)}
-                style={{
-                  padding: '9px 22px',
-                  borderRadius: 8,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  border: isActive ? `2px solid ${tabColor}` : '2px solid #e2e8f0',
-                  background: isActive
-                    ? i === 0
-                      ? '#fef2f2'
-                      : i === 1
-                      ? '#fffbeb'
-                      : '#eff6ff'
-                    : 'white',
-                  color: isActive ? tabColor : '#475569',
-                }}
+                key={scenario.id}
+                type="button"
+                className={`ep-scenario-card ${active ? 'active' : ''}`}
+                onClick={() => setActiveScenarioId(scenario.id)}
               >
-                {tab}
+                <span
+                  className="ep-scenario-badge"
+                  style={{ background: scenarioMeta?.alertColor ?? '#1e40af' }}
+                />
+                <span className="ep-scenario-title">{scenario.label}</span>
+                <span className="ep-scenario-helper">{scenario.helper}</span>
+                <span className="ep-scenario-id">{scenario.id}</span>
               </button>
             );
           })}
-        </div>
+        </section>
 
-        {/* Inline email card */}
-        {action && (
-          <div
-            style={{
-              background: 'white',
-              border: '1px solid #e2e8f0',
-              borderRadius: 14,
-              overflow: 'hidden',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-            }}
-          >
-            {/* Email client metadata bar */}
-            <div
-              style={{
-                background: '#f8fafc',
-                borderBottom: '1px solid #f1f5f9',
-                padding: '14px 20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 5,
-                fontSize: 13,
-              }}
-            >
-              <div style={{ display: 'flex', gap: 8 }}>
-                <span style={{ color: '#94a3b8', minWidth: 60 }}>From:</span>
-                <span style={{ color: '#0f172a', fontWeight: 500 }}>
-                  ecc-alerts@lupindiagnostics.com
-                </span>
+        {activeAction && emailMeta && (
+          <section className="ep-email-wrap">
+            <div className="ep-client-bar">
+              <div>
+                <span>From:</span>
+                <strong>ecc-alerts@lupindiagnostics.com</strong>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <span style={{ color: '#94a3b8', minWidth: 60 }}>To:</span>
-                <span style={{ color: '#0f172a', fontWeight: 500 }}>
-                  {action.assignedTo.toLowerCase().replace(' ', '.')}@lupindiagnostics.com
-                </span>
+              <div>
+                <span>To:</span>
+                <strong>{ownerEmail(activeAction.assignedTo)}</strong>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <span style={{ color: '#94a3b8', minWidth: 60 }}>Subject:</span>
-                <span style={{ color: '#0f172a', fontWeight: 600 }}>
-                  [ECC] {alertType}: {action.id} —{' '}
-                  {action.title.length > 50 ? action.title.slice(0, 50) + '…' : action.title}
-                </span>
+              <div>
+                <span>Subject:</span>
+                <strong>
+                  [ECC] {emailMeta.alertType}: {activeAction.id} -{' '}
+                  {activeAction.title.length > 56
+                    ? `${activeAction.title.slice(0, 56)}...`
+                    : activeAction.title}
+                </strong>
               </div>
             </div>
 
-            {/* Email body */}
-            <div>
-              {/* Alert header banner */}
+            <article className="ep-email-card">
               <div
-                style={{
-                  background: alertColor,
-                  padding: '22px 28px',
-                  color: 'white',
-                }}
+                className="ep-email-banner"
+                style={{ background: emailMeta.alertColor }}
               >
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: '1.2px',
-                    opacity: 0.8,
-                    marginBottom: 8,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Lupin Diagnostics · ECC Platform
-                </div>
-                <div
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 800,
-                    letterSpacing: '-0.5px',
-                  }}
-                >
-                  {alertType}
-                </div>
+                <p>Lupin Diagnostics · Executive Command Centre</p>
+                <h2>{emailMeta.alertType}</h2>
               </div>
 
-              {/* Body content */}
-              <div
-                style={{
-                  padding: '28px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 18,
-                }}
-              >
-                <p style={{ margin: 0, fontSize: 14, color: '#0f172a' }}>
-                  Hi <strong>{action.assignedTo.split(' ')[0]}</strong>,
+              <div className="ep-email-content">
+                <p className="ep-greeting">
+                  Hi <strong>{activeAction.assignedTo.split(' ')[0]}</strong>,
                 </p>
-                <p style={{ margin: 0, fontSize: 14, color: '#475569', lineHeight: 1.7 }}>
-                  {isOverdue ? (
-                    <>
-                      Your action item below is now{' '}
-                      <strong style={{ color: '#dc2626' }}>
-                        {Math.abs(action.daysLeft)} day(s) overdue
-                      </strong>
-                      . Please update its status immediately to avoid escalation to the CEO Office.
-                    </>
-                  ) : (
-                    <>
-                      Your action item below is due in{' '}
-                      <strong style={{ color: alertColor }}>
-                        {action.daysLeft} day(s)
-                      </strong>
-                      . Please review progress and update the status.
-                    </>
-                  )}
+                <p className="ep-copy">
+                  {emailMeta.isOverdue
+                    ? `This action is now ${Math.abs(
+                        activeAction.daysLeft
+                      )} day(s) overdue. Please update the status immediately to prevent escalation.`
+                    : `This action is due in ${activeAction.daysLeft} day(s). Please review progress and update the status now.`}
                 </p>
 
-                {/* Action details card */}
-                <div
-                  style={{
-                    background: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: 10,
-                    padding: '18px 20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 10,
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: '#94a3b8',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.8px',
-                    }}
-                  >
-                    {action.id} · {action.department}
+                <div className="ep-action-card">
+                  <p className="ep-action-meta">
+                    {activeAction.id} · {activeAction.department}
+                  </p>
+                  <h3>{activeAction.title}</h3>
+                  <div className="ep-action-stats">
+                    <span>Due: <strong>{activeAction.dueDate}</strong></span>
+                    <span>Priority: <strong>{activeAction.priority.toUpperCase()}</strong></span>
+                    <span>Progress: <strong>{activeAction.progress}%</strong></span>
                   </div>
-                  <div
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 700,
-                      color: '#0f172a',
-                      lineHeight: 1.4,
-                    }}
-                  >
-                    {action.title}
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: 16,
-                      fontSize: 13,
-                      color: '#64748b',
-                    }}
-                  >
-                    <span>
-                      Due:{' '}
-                      <strong style={{ color: isOverdue ? '#dc2626' : '#0f172a' }}>
-                        {action.dueDate}
-                      </strong>
-                    </span>
-                    <span>
-                      Priority: <strong>{action.priority.toUpperCase()}</strong>
-                    </span>
-                    <span>
-                      Progress: <strong>{action.progress}%</strong>
-                    </span>
-                  </div>
-                  {/* Progress bar */}
-                  <div
-                    style={{
-                      height: 6,
-                      background: '#e2e8f0',
-                      borderRadius: 99,
-                      overflow: 'hidden',
-                      marginTop: 2,
-                    }}
-                  >
+                  <div className="ep-progress-track">
                     <div
+                      className="ep-progress-fill"
                       style={{
-                        height: '100%',
-                        width: `${action.progress}%`,
-                        background: alertColor,
-                        borderRadius: 99,
-                        transition: 'width 0.4s',
+                        width: `${activeAction.progress}%`,
+                        background: emailMeta.alertColor,
                       }}
                     />
                   </div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>
-                    Meeting: {action.meetingTitle}
-                  </div>
+                  <p className="ep-meeting-link">Source meeting: {activeAction.meetingTitle}</p>
                 </div>
 
-                {/* CTA button */}
-                <div style={{ textAlign: 'center', paddingTop: 4 }}>
-                  <button
-                    onClick={handleUpdateStatus}
-                    style={{
-                      background: alertColor,
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 9,
-                      padding: '14px 36px',
-                      fontSize: 15,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      boxShadow: `0 4px 16px ${alertColor}44`,
-                      transition: 'opacity 0.15s',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.88')}
-                    onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-                  >
-                    Update Status Now →
-                  </button>
-                </div>
-
-                {/* Footer note */}
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 12,
-                    color: '#94a3b8',
-                    textAlign: 'center',
-                    lineHeight: 1.6,
-                    borderTop: '1px solid #f1f5f9',
-                    paddingTop: 16,
-                  }}
+                <button
+                  type="button"
+                  className="ep-update-btn"
+                  style={{ background: emailMeta.alertColor }}
+                  onClick={openStatusUpdate}
                 >
-                  This is an automated alert from ECC Platform.
-                  <br />
-                  Sent by CEO Office · Lupin Diagnostics
+                  Update Status
+                </button>
+
+                <p className="ep-footer-note">
+                  This is a simulated automated email from ECC Platform.
                 </p>
               </div>
-            </div>
-          </div>
+            </article>
+          </section>
         )}
 
-        {/* Contextual note below email */}
-        <p
-          style={{
-            marginTop: 20,
-            fontSize: 13,
-            color: '#94a3b8',
-            textAlign: 'center',
-            lineHeight: 1.6,
-          }}
-        >
-          This preview shows actual emails sent by ECC Platform for this action item.
-        </p>
-      </div>
+        <section className="ep-deeplink-card">
+          <p className="ep-deeplink-label">Deep link simulation</p>
+          <code>{deepLink || 'Click "Update Status" to generate a deep-link route.'}</code>
+        </section>
+      </main>
 
-      {/* Toast notification */}
-      {toastVisible && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 32,
-            right: 32,
-            background: '#16a34a',
-            color: 'white',
-            padding: '14px 22px',
-            borderRadius: 10,
-            fontSize: 14,
-            fontWeight: 600,
-            boxShadow: '0 8px 24px rgba(22,163,74,0.35)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            zIndex: 9999,
-            animation: 'fadeSlideIn 0.2s ease',
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <circle cx="9" cy="9" r="8" fill="white" fillOpacity="0.25" />
-            <path d="M5 9l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          Status update request sent!
-        </div>
-      )}
+      <StatusUpdateModal
+        action={statusModalAction}
+        open={!!statusModalAction}
+        onClose={() => setStatusModalAction(null)}
+        onSave={handleSaveStatus}
+      />
 
-      <style>{`
-        @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(12px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+      {toast && <div className="ep-toast">{toast}</div>}
     </div>
   );
 }

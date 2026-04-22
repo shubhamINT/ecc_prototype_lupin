@@ -40,8 +40,8 @@
   width: fit-content;
   padding: 5px 10px;
   border-radius: 999px;
-  background: #cffafe;
-  color: #0f766e;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.7px;
@@ -77,7 +77,7 @@
   align-items: center;
   gap: 7px;
   padding: 10px 18px;
-  background: #1e40af;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 9px;
@@ -91,12 +91,12 @@
 }
 
 .admin-btn-primary:hover {
-  background: #1d3a9e;
-  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.28);
+  background: var(--color-primary-dark);
+  box-shadow: 0 2px 8px rgba(0, 168, 157, 0.28);
 }
 
 .admin-btn-primary:active {
-  background: #1e3a8a;
+  background: #00796B;
 }
 
 .admin-btn-secondary {
@@ -118,8 +118,8 @@
 }
 
 .admin-btn-secondary:hover {
-  border-color: #cbd5e1;
-  color: #1e40af;
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 

@@ -32,8 +32,8 @@
   width: fit-content;
   padding: 5px 10px;
   border-radius: 999px;
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -82,7 +82,7 @@
 }
 
 .pd-hero-card.primary {
-  background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
   border-color: transparent;
 }
 
@@ -189,7 +189,7 @@
 }
 
 .pd-stat-icon.open { background: #64748b; }
-.pd-stat-icon.progress { background: #1e40af; }
+.pd-stat-icon.progress { background: var(--color-primary); }
 .pd-stat-icon.overdue { background: #dc2626; }
 .pd-stat-icon.due-soon { background: #d97706; }
 .pd-stat-icon.completed { background: #6366f1; }
@@ -432,7 +432,7 @@
 .pd-fill-overdue { background: #dc2626; }
 .pd-fill-completed { background: #6366f1; }
 .pd-fill-open { background: #94a3b8; }
-.pd-fill-in-progress { background: #1e40af; }
+.pd-fill-in-progress { background: var(--color-primary); }
 .pd-fill-blocked { background: #d97706; }
 
 .pd-progress-pct {

@@ -17,11 +17,8 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <div className="navbar-brand">
-        <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
-          <rect width="36" height="36" rx="8" fill="#1e40af" />
-          <path d="M8 10h6l4 8 4-8h6l-10 16L8 10z" fill="white" />
-        </svg>
-        <span className="navbar-brand-text">ECC<span>Platform</span></span>
+        <div className="navbar-logo">LD</div>
+        <span className="navbar-brand-text">Lupin<span>Diagnostics</span></span>
       </div>
 
       <div className="navbar-right">

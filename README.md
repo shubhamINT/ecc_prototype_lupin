@@ -103,7 +103,8 @@ ecc_prototype_lupin/
 │       │   └── CreateMeetingPage.css
 │       │
 │       └── EmailPreviewPage/      # Route: /email-preview
-│           └── index.tsx          # TODO 🟡 — email alert demo gallery (partial stub)
+│           ├── index.tsx          # DONE ✅ — simulated alert email with deep-link flow
+│           └── EmailPreviewPage.css
 │
 ├── index.html
 ├── package.json
@@ -123,7 +124,7 @@ ecc_prototype_lupin/
 | `/admin-dashboard` | AdminDashboard | CEO Office Admin | ✅ Done |
 | `/ceo-dashboard` | CEODashboard | CEO | 🔴 Placeholder |
 | `/create-meeting` | CreateMeetingPage | CEO Office Admin | ✅ Done |
-| `/email-preview` | EmailPreviewPage | All | 🟡 Partial |
+| `/email-preview` | EmailPreviewPage | All | ✅ Done |
 
 ---
 
@@ -204,17 +205,13 @@ Includes source meeting context, red overdue rows, amber deadline warning states
 
 ---
 
-### Feature 5 — Simulated Email Alert Preview 🟡 PARTIAL
+### Feature 5 — Simulated Email Alert Preview ✅ DONE
 **File:** `src/pages/EmailPreviewPage/index.tsx` + `src/components/email/EmailAlertPreview.tsx`  
-**Status:** `EmailAlertPreview` modal component is fully built. `EmailPreviewPage` is a stub.
-
-**Complete the page:**
-- Show 3 tabs: Overdue Alert · T-3 Reminder · Upcoming
-- Each tab pre-selects: IT-003 (overdue, -12d) · IT-004 (at-risk, 3d) · IT-001 (8d)
-- Render `EmailAlertPreview` as modal OR inline (inline looks better for demo)
-- "Update Status" CTA in email should open `StatusUpdateModal`
-
-**Add link:** "Preview Alerts" button in AdminDashboard header
+**Delivered:**
+1. Dedicated Email Preview screen with 3 scenario tabs: Overdue Alert, T-3 Reminder, and Upcoming Deadline
+2. Realistic simulated email rendering with sender/subject metadata and action-item detail card
+3. Prominent `Update Status` CTA that simulates a deep link (`ecc://actions/<id>...`) and opens `StatusUpdateModal`
+4. Save flow updates local action state and confirms with a toast
 
 ---
 
