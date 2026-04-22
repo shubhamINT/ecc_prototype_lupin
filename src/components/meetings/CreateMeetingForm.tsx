@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MOCK_USERS } from '../../types/auth';
 import type { Priority } from '../../types/actions';
+import './CreateMeetingForm.css';
 
 interface MeetingForm {
   title: string;
@@ -20,412 +21,407 @@ interface ActionForm {
 
 const DEPARTMENTS = ['IT', 'Finance', 'Operations', 'HR', 'Marketing', 'Cross-Functional'];
 const ALL_USERS = Object.values(MOCK_USERS);
+const STEP_TITLES = ['Meeting Details', 'Minutes of Meeting', 'Action Items'] as const;
+const MOM_TEMPLATE = `<p><strong>Agenda:</strong> Review current governance actions and agree next steps.</p><ul><li>Decision taken:</li><li>Escalations discussed:</li><li>Owner follow-ups:</li></ul>`;
 
-const STEPS = ['Meeting Details', 'Minutes of Meeting', 'Action Items'];
+function createEmptyAction(id: string): ActionForm {
+  return {
+    id,
+    title: '',
+    assignedTo: '',
+    dueDate: '',
+    priority: 'medium',
+  };
+}
 
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '11px 14px',
-  borderRadius: 8,
-  border: '1.5px solid #e2e8f0',
-  fontSize: 14,
-  color: '#0f172a',
-  background: 'white',
-  fontFamily: 'inherit',
-  boxSizing: 'border-box',
-  outline: 'none',
-  transition: 'border-color 0.15s',
-};
+function getPlainText(html: string) {
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
-const labelStyle: React.CSSProperties = {
-  fontSize: 12,
-  fontWeight: 700,
-  color: '#64748b',
-  textTransform: 'uppercase',
-  letterSpacing: '0.5px',
-  marginBottom: 6,
-  display: 'block',
-};
+function formatPreviewDate(isoDate: string) {
+  if (!isoDate) return 'Select a date';
+  const date = new Date(isoDate);
+  return date.toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
 
 export default function CreateMeetingForm() {
   const navigate = useNavigate();
+  const editorRef = useRef<HTMLDivElement | null>(null);
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [validationMessage, setValidationMessage] = useState('');
 
   const [meetingForm, setMeetingForm] = useState<MeetingForm>({
     title: '',
-    date: '',
+    date: '2026-04-23',
     department: '',
-    participants: [],
+    participants: ['Priya Sharma'],
   });
-  const [mom, setMom] = useState('');
+  const [momHtml, setMomHtml] = useState(MOM_TEMPLATE);
   const [actionItems, setActionItems] = useState<ActionForm[]>([
-    { id: '1', title: '', assignedTo: '', dueDate: '', priority: 'medium' },
+    createEmptyAction('action-1'),
   ]);
 
-  const wordCount = mom.trim() === '' ? 0 : mom.trim().split(/\s+/).length;
+  const momText = useMemo(() => getPlainText(momHtml), [momHtml]);
+  const wordCount = momText === '' ? 0 : momText.split(/\s+/).length;
+  const completedActions = actionItems.filter(
+    (item) => item.title && item.assignedTo && item.dueDate
+  ).length;
+
+  const payloadPreview = useMemo(
+    () => ({
+      meeting: {
+        ...meetingForm,
+        dateLabel: formatPreviewDate(meetingForm.date),
+      },
+      momText,
+      actionItems,
+    }),
+    [actionItems, meetingForm, momText]
+  );
+
+  const updateMeetingField = <K extends keyof MeetingForm>(field: K, value: MeetingForm[K]) => {
+    setMeetingForm((current) => ({ ...current, [field]: value }));
+  };
 
   const toggleParticipant = (name: string) => {
-    setMeetingForm((prev) => ({
-      ...prev,
-      participants: prev.participants.includes(name)
-        ? prev.participants.filter((p) => p !== name)
-        : [...prev.participants, name],
+    setMeetingForm((current) => ({
+      ...current,
+      participants: current.participants.includes(name)
+        ? current.participants.filter((participant) => participant !== name)
+        : [...current.participants, name],
     }));
   };
 
+  const applyEditorCommand = (command: 'bold' | 'insertUnorderedList' | 'insertOrderedList') => {
+    if (!editorRef.current) return;
+    editorRef.current.focus();
+    document.execCommand(command, false);
+    setMomHtml(editorRef.current.innerHTML);
+  };
+
+  const handleEditorInput = () => {
+    if (!editorRef.current) return;
+    setMomHtml(editorRef.current.innerHTML);
+  };
+
   const addActionItem = () => {
-    setActionItems((prev) => [
-      ...prev,
-      { id: String(Date.now()), title: '', assignedTo: '', dueDate: '', priority: 'medium' },
+    setActionItems((current) => [
+      ...current,
+      createEmptyAction(`action-${Date.now()}-${current.length + 1}`),
     ]);
   };
 
   const removeActionItem = (id: string) => {
     if (actionItems.length === 1) return;
-    setActionItems((prev) => prev.filter((a) => a.id !== id));
+    setActionItems((current) => current.filter((item) => item.id !== id));
   };
 
-  const updateActionItem = (id: string, field: keyof ActionForm, value: string) => {
-    setActionItems((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, [field]: value } : a))
+  const updateActionItem = <K extends keyof ActionForm>(
+    id: string,
+    field: K,
+    value: ActionForm[K]
+  ) => {
+    setActionItems((current) =>
+      current.map((item) => (item.id === id ? { ...item, [field]: value } : item))
     );
   };
 
-  const handleNext = () => {
-    if (step === 0 && (!meetingForm.title.trim() || !meetingForm.date || !meetingForm.department)) return;
-    setStep((s) => Math.min(s + 1, 2));
+  const validateStep = (targetStep: number) => {
+    if (targetStep === 0) {
+      if (!meetingForm.title.trim() || !meetingForm.date || !meetingForm.department) {
+        return 'Add the meeting title, date, and department before continuing.';
+      }
+      if (meetingForm.participants.length === 0) {
+        return 'Select at least one participant for the meeting.';
+      }
+    }
+
+    if (targetStep === 1 && wordCount < 8) {
+      return 'Add a more complete MOM summary before moving to action items.';
+    }
+
+    if (targetStep === 2) {
+      const hasIncompleteAction = actionItems.some(
+        (item) => !item.title.trim() || !item.assignedTo || !item.dueDate
+      );
+
+      if (hasIncompleteAction) {
+        return 'Complete each action item with title, owner, deadline, and priority.';
+      }
+    }
+
+    return '';
   };
 
-  const handleBack = () => setStep((s) => Math.max(s - 1, 0));
+  const handleNext = () => {
+    const message = validateStep(step);
+    if (message) {
+      setValidationMessage(message);
+      return;
+    }
+
+    setValidationMessage('');
+    setStep((current) => Math.min(current + 1, STEP_TITLES.length - 1));
+  };
+
+  const handleBack = () => {
+    setValidationMessage('');
+    setStep((current) => Math.max(current - 1, 0));
+  };
 
   const handleSubmit = () => {
-    console.log('New meeting:', { meeting: meetingForm, mom, actionItems });
+    const message = validateStep(2);
+    if (message) {
+      setValidationMessage(message);
+      return;
+    }
+
+    console.log('New meeting:', payloadPreview);
     setSubmitted(true);
-    setTimeout(() => navigate('/admin-dashboard'), 1500);
+    window.setTimeout(() => navigate('/admin-dashboard'), 1800);
   };
 
   if (submitted) {
     return (
-      <div
-        style={{
-          background: '#f0fdf4',
-          border: '1px solid #bbf7d0',
-          borderRadius: 12,
-          padding: '28px 32px',
-          textAlign: 'center',
-          color: '#15803d',
-        }}
-      >
-        <div style={{ fontSize: 36, marginBottom: 10 }}>
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ display: 'block', margin: '0 auto 12px' }}>
-            <circle cx="24" cy="24" r="22" fill="#16a34a" fillOpacity="0.12" />
-            <path d="M14 24l8 8 14-14" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <div className="cmf-success">
+        <div className="cmf-success-icon">
+          <svg width="46" height="46" viewBox="0 0 46 46" fill="none">
+            <circle cx="23" cy="23" r="22" fill="#16a34a" fillOpacity="0.12" />
+            <path d="M13 23l7 7 13-13" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
-        <p style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 700 }}>Meeting created successfully!</p>
-        <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>Redirecting to dashboard…</p>
+        <h2 className="cmf-success-title">Meeting logged successfully</h2>
+        <p className="cmf-success-copy">
+          {meetingForm.title || 'New meeting'} has been captured with {actionItems.length} action
+          item{actionItems.length === 1 ? '' : 's'}. Redirecting to the admin dashboard.
+        </p>
       </div>
     );
   }
 
   return (
-    <div>
-      {/* Step indicator */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          marginBottom: 32,
-          gap: 0,
-        }}
-      >
-        {STEPS.map((label, i) => {
-          const isDone = i < step;
-          const isActive = i === step;
-          return (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', flex: i < STEPS.length - 1 ? 1 : 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    transition: 'all 0.2s',
-                    background: isDone ? '#16a34a' : isActive ? '#1e40af' : '#e2e8f0',
-                    color: isDone || isActive ? 'white' : '#94a3b8',
-                    flexShrink: 0,
-                  }}
-                >
-                  {isDone ? (
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M2 7l4 4 6-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  ) : (
-                    i + 1
-                  )}
+    <div className="cmf-layout">
+      <div className="cmf-main">
+        <div className="cmf-stepper">
+          {STEP_TITLES.map((label, index) => {
+            const done = index < step;
+            const active = index === step;
+
+            return (
+              <div key={label} className="cmf-stepper-item">
+                <div className={`cmf-step-dot ${done ? 'done' : active ? 'active' : ''}`}>
+                  {done ? '✓' : index + 1}
                 </div>
-                <span
-                  style={{
-                    fontSize: 13,
-                    fontWeight: isActive ? 700 : 500,
-                    color: isActive ? '#0f172a' : isDone ? '#16a34a' : '#94a3b8',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {label}
-                </span>
+                <div className="cmf-step-meta">
+                  <p className="cmf-step-label">{label}</p>
+                  <p className="cmf-step-copy">
+                    {index === 0
+                      ? 'Capture meeting context'
+                      : index === 1
+                      ? 'Write the MOM summary'
+                      : 'Assign follow-up owners'}
+                  </p>
+                </div>
               </div>
-              {i < STEPS.length - 1 && (
-                <div
-                  style={{
-                    flex: 1,
-                    height: 2,
-                    margin: '0 14px',
-                    background: isDone ? '#16a34a' : '#e2e8f0',
-                    borderRadius: 2,
-                    transition: 'background 0.2s',
-                  }}
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      {/* Form card */}
-      <div
-        style={{
-          background: 'white',
-          border: '1px solid #e2e8f0',
-          borderRadius: 12,
-          padding: '28px 32px',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
-        }}
-      >
-        {/* Step 1: Meeting Details */}
-        {step === 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <h3 style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 700, color: '#0f172a' }}>
-              Meeting Details
-            </h3>
-            <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>
-              Basic information about the meeting.
-            </p>
+        <div className="cmf-card">
+          {step === 0 && (
+            <section className="cmf-section">
+              <div className="cmf-section-header">
+                <h2>Meeting Details</h2>
+                <p>Capture the essentials Priya would fill immediately after the discussion starts.</p>
+              </div>
 
-            <div>
-              <label style={labelStyle}>Meeting Title *</label>
-              <input
-                type="text"
-                value={meetingForm.title}
-                onChange={(e) => setMeetingForm((p) => ({ ...p, title: e.target.value }))}
-                placeholder="e.g. Q2 Board Strategy Review"
-                style={inputStyle}
-                onFocus={(e) => (e.currentTarget.style.borderColor = '#1e40af')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div>
-                <label style={labelStyle}>Date *</label>
+              <div className="cmf-field">
+                <label htmlFor="meeting-title">Meeting Title</label>
                 <input
-                  type="date"
-                  value={meetingForm.date}
-                  onChange={(e) => setMeetingForm((p) => ({ ...p, date: e.target.value }))}
-                  style={inputStyle}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = '#1e40af')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
+                  id="meeting-title"
+                  className="cmf-input"
+                  type="text"
+                  value={meetingForm.title}
+                  onChange={(event) => updateMeetingField('title', event.target.value)}
+                  placeholder="April Board Review"
                 />
               </div>
-              <div>
-                <label style={labelStyle}>Department *</label>
-                <select
-                  value={meetingForm.department}
-                  onChange={(e) => setMeetingForm((p) => ({ ...p, department: e.target.value }))}
-                  style={{ ...inputStyle, appearance: 'auto' }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = '#1e40af')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
-                >
-                  <option value="">Select department…</option>
-                  {DEPARTMENTS.map((d) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
+
+              <div className="cmf-grid cmf-grid-two">
+                <div className="cmf-field">
+                  <label htmlFor="meeting-date">Meeting Date</label>
+                  <input
+                    id="meeting-date"
+                    className="cmf-input"
+                    type="date"
+                    value={meetingForm.date}
+                    onChange={(event) => updateMeetingField('date', event.target.value)}
+                  />
+                </div>
+                <div className="cmf-field">
+                  <label htmlFor="meeting-department">Department</label>
+                  <select
+                    id="meeting-department"
+                    className="cmf-input"
+                    value={meetingForm.department}
+                    onChange={(event) => updateMeetingField('department', event.target.value)}
+                  >
+                    <option value="">Select department</option>
+                    {DEPARTMENTS.map((department) => (
+                      <option key={department} value={department}>
+                        {department}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label style={labelStyle}>Participants</label>
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 10,
-                  padding: '14px 16px',
-                  background: '#f8fafc',
-                  borderRadius: 8,
-                  border: '1.5px solid #e2e8f0',
-                }}
-              >
-                {ALL_USERS.map((u) => {
-                  const checked = meetingForm.participants.includes(u.name);
-                  return (
-                    <label
-                      key={u.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        cursor: 'pointer',
-                        padding: '7px 14px',
-                        borderRadius: 20,
-                        border: `1.5px solid ${checked ? '#1e40af' : '#e2e8f0'}`,
-                        background: checked ? '#eff6ff' : 'white',
-                        fontSize: 13,
-                        fontWeight: checked ? 600 : 400,
-                        color: checked ? '#1e40af' : '#475569',
-                        transition: 'all 0.15s',
-                        userSelect: 'none',
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleParticipant(u.name)}
-                        style={{ display: 'none' }}
-                      />
-                      {u.name}
-                    </label>
-                  );
-                })}
+              <div className="cmf-field">
+                <label>Participants</label>
+                <div className="cmf-chip-grid">
+                  {ALL_USERS.map((user) => {
+                    const selected = meetingForm.participants.includes(user.name);
+                    return (
+                      <button
+                        key={user.id}
+                        type="button"
+                        className={`cmf-chip ${selected ? 'selected' : ''}`}
+                        onClick={() => toggleParticipant(user.name)}
+                      >
+                        <span className={`cmf-chip-avatar role-${user.role}`}>{user.initials}</span>
+                        <span>{user.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            </section>
+          )}
 
-        {/* Step 2: Minutes of Meeting */}
-        {step === 1 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <h3 style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 700, color: '#0f172a' }}>
-              Minutes of Meeting
-            </h3>
-            <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>
-              Record the key discussion points, decisions, and outcomes.
-            </p>
+          {step === 1 && (
+            <section className="cmf-section">
+              <div className="cmf-section-header">
+                <h2>Minutes of Meeting</h2>
+                <p>Use the rich text box to capture decisions, escalations, and agreed next steps.</p>
+              </div>
 
-            <div>
-              <label style={labelStyle}>Meeting Minutes</label>
-              <textarea
-                value={mom}
-                onChange={(e) => setMom(e.target.value)}
-                rows={10}
-                placeholder="Paste or type minutes of meeting..."
-                style={{
-                  ...inputStyle,
-                  minHeight: 180,
-                  resize: 'vertical',
-                  lineHeight: 1.7,
-                }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = '#1e40af')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
-              />
-              <p style={{ margin: '6px 0 0', fontSize: 12, color: '#94a3b8' }}>
-                {wordCount} {wordCount === 1 ? 'word' : 'words'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Action Items */}
-        {step === 2 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <h3 style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 700, color: '#0f172a' }}>
-              Action Items
-            </h3>
-            <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>
-              Define action items and assign owners with due dates.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {actionItems.map((item, index) => (
+              <div className="cmf-editor-card">
+                <div className="cmf-editor-toolbar">
+                  <button type="button" onClick={() => applyEditorCommand('bold')}>Bold</button>
+                  <button type="button" onClick={() => applyEditorCommand('insertUnorderedList')}>Bullets</button>
+                  <button type="button" onClick={() => applyEditorCommand('insertOrderedList')}>Numbers</button>
+                </div>
                 <div
-                  key={item.id}
-                  style={{
-                    background: '#f8fafc',
-                    border: '1.5px solid #e2e8f0',
-                    borderRadius: 10,
-                    padding: '16px 18px',
-                    position: 'relative',
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: '#94a3b8',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      marginBottom: 12,
+                  ref={editorRef}
+                  className="cmf-editor"
+                  contentEditable
+                  suppressContentEditableWarning
+                  onInput={handleEditorInput}
+                  dangerouslySetInnerHTML={{ __html: momHtml }}
+                />
+                <div className="cmf-editor-footer">
+                  <span>{wordCount} words</span>
+                  <button
+                    type="button"
+                    className="cmf-link-btn"
+                    onClick={() => {
+                      setMomHtml(MOM_TEMPLATE);
+                      if (editorRef.current) {
+                        editorRef.current.innerHTML = MOM_TEMPLATE;
+                      }
                     }}
                   >
-                    Action Item #{index + 1}
-                  </div>
+                    Reset template
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <div>
-                      <label style={labelStyle}>Title *</label>
+          {step === 2 && (
+            <section className="cmf-section">
+              <div className="cmf-section-header">
+                <h2>Action Items</h2>
+                <p>Add owners one by one with deadlines and priorities before you close the meeting record.</p>
+              </div>
+
+              <div className="cmf-action-list">
+                {actionItems.map((item, index) => (
+                  <article key={item.id} className="cmf-action-card">
+                    <div className="cmf-action-card-head">
+                      <div>
+                        <p className="cmf-action-index">Action Item #{index + 1}</p>
+                        <p className="cmf-action-hint">Owner, due date, and priority are required.</p>
+                      </div>
+                      {actionItems.length > 1 && (
+                        <button
+                          type="button"
+                          className="cmf-remove-btn"
+                          onClick={() => removeActionItem(item.id)}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="cmf-field">
+                      <label htmlFor={`action-title-${item.id}`}>Action Title</label>
                       <input
+                        id={`action-title-${item.id}`}
+                        className="cmf-input"
                         type="text"
                         value={item.title}
-                        onChange={(e) => updateActionItem(item.id, 'title', e.target.value)}
-                        placeholder="Describe the action item…"
-                        style={inputStyle}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = '#1e40af')}
-                        onBlur={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
+                        onChange={(event) => updateActionItem(item.id, 'title', event.target.value)}
+                        placeholder="Prepare April capex variance note for CEO office"
                       />
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                      <div>
-                        <label style={labelStyle}>Assignee</label>
+                    <div className="cmf-grid cmf-grid-three">
+                      <div className="cmf-field">
+                        <label htmlFor={`action-owner-${item.id}`}>Owner</label>
                         <select
+                          id={`action-owner-${item.id}`}
+                          className="cmf-input"
                           value={item.assignedTo}
-                          onChange={(e) => updateActionItem(item.id, 'assignedTo', e.target.value)}
-                          style={{ ...inputStyle, appearance: 'auto' }}
-                          onFocus={(e) => (e.currentTarget.style.borderColor = '#1e40af')}
-                          onBlur={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
+                          onChange={(event) => updateActionItem(item.id, 'assignedTo', event.target.value)}
                         >
-                          <option value="">Select…</option>
-                          {ALL_USERS.map((u) => (
-                            <option key={u.id} value={u.name}>{u.name}</option>
+                          <option value="">Select owner</option>
+                          {ALL_USERS.map((user) => (
+                            <option key={user.id} value={user.name}>
+                              {user.name}
+                            </option>
                           ))}
                         </select>
                       </div>
-                      <div>
-                        <label style={labelStyle}>Due Date</label>
+                      <div className="cmf-field">
+                        <label htmlFor={`action-date-${item.id}`}>Deadline</label>
                         <input
+                          id={`action-date-${item.id}`}
+                          className="cmf-input"
                           type="date"
                           value={item.dueDate}
-                          onChange={(e) => updateActionItem(item.id, 'dueDate', e.target.value)}
-                          style={inputStyle}
-                          onFocus={(e) => (e.currentTarget.style.borderColor = '#1e40af')}
-                          onBlur={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
+                          onChange={(event) => updateActionItem(item.id, 'dueDate', event.target.value)}
                         />
                       </div>
-                      <div>
-                        <label style={labelStyle}>Priority</label>
+                      <div className="cmf-field">
+                        <label htmlFor={`action-priority-${item.id}`}>Priority</label>
                         <select
+                          id={`action-priority-${item.id}`}
+                          className="cmf-input"
                           value={item.priority}
-                          onChange={(e) => updateActionItem(item.id, 'priority', e.target.value as Priority)}
-                          style={{ ...inputStyle, appearance: 'auto' }}
-                          onFocus={(e) => (e.currentTarget.style.borderColor = '#1e40af')}
-                          onBlur={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
+                          onChange={(event) =>
+                            updateActionItem(item.id, 'priority', event.target.value as Priority)
+                          }
                         >
                           <option value="high">High</option>
                           <option value="medium">Medium</option>
@@ -433,164 +429,81 @@ export default function CreateMeetingForm() {
                         </select>
                       </div>
                     </div>
-                  </div>
+                  </article>
+                ))}
+              </div>
 
-                  {actionItems.length > 1 && (
-                    <button
-                      onClick={() => removeActionItem(item.id)}
-                      title="Remove action item"
-                      style={{
-                        position: 'absolute',
-                        top: 14,
-                        right: 14,
-                        width: 26,
-                        height: 26,
-                        borderRadius: '50%',
-                        border: '1.5px solid #fecaca',
-                        background: '#fef2f2',
-                        color: '#dc2626',
-                        fontSize: 16,
-                        lineHeight: 1,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 700,
-                        padding: 0,
-                        transition: 'background 0.15s',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = '#fee2e2')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = '#fef2f2')}
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <button
-              onClick={addActionItem}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '10px 18px',
-                borderRadius: 8,
-                border: '1.5px dashed #cbd5e1',
-                background: 'white',
-                color: '#475569',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                alignSelf: 'flex-start',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#1e40af';
-                e.currentTarget.style.color = '#1e40af';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '#cbd5e1';
-                e.currentTarget.style.color = '#475569';
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              Add Action Item
-            </button>
-          </div>
-        )}
-
-        {/* Navigation buttons */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: 28,
-            paddingTop: 24,
-            borderTop: '1px solid #f1f5f9',
-          }}
-        >
-          <div>
-            {step > 0 && (
-              <button
-                onClick={handleBack}
-                style={{
-                  padding: '11px 22px',
-                  borderRadius: 8,
-                  border: '1.5px solid #e2e8f0',
-                  background: 'white',
-                  color: '#475569',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  transition: 'border-color 0.15s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#94a3b8')}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
-              >
-                ← Back
+              <button type="button" className="cmf-add-btn" onClick={addActionItem}>
+                + Add Action Item
               </button>
-            )}
-          </div>
-          <div>
-            {step < 2 ? (
-              <button
-                onClick={handleNext}
-                style={{
-                  padding: '11px 26px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: '#1e40af',
-                  color: 'white',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  opacity:
-                    step === 0 && (!meetingForm.title.trim() || !meetingForm.date || !meetingForm.department)
-                      ? 0.5
-                      : 1,
-                  transition: 'opacity 0.15s',
-                }}
-              >
-                Next →
+            </section>
+          )}
+
+          {validationMessage && <p className="cmf-validation">{validationMessage}</p>}
+
+          <div className="cmf-actions">
+            <button
+              type="button"
+              className="cmf-btn cmf-btn-secondary"
+              onClick={step === 0 ? () => navigate('/admin-dashboard') : handleBack}
+            >
+              {step === 0 ? 'Cancel' : 'Back'}
+            </button>
+
+            {step < STEP_TITLES.length - 1 ? (
+              <button type="button" className="cmf-btn cmf-btn-primary" onClick={handleNext}>
+                Continue
               </button>
             ) : (
-              <button
-                onClick={handleSubmit}
-                style={{
-                  padding: '11px 28px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: '#1e40af',
-                  color: 'white',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  boxShadow: '0 4px 14px rgba(30,64,175,0.3)',
-                  transition: 'opacity 0.15s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.88')}
-                onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-              >
+              <button type="button" className="cmf-btn cmf-btn-primary" onClick={handleSubmit}>
                 Submit Meeting
               </button>
             )}
           </div>
         </div>
       </div>
+
+      <aside className="cmf-sidebar">
+        <div className="cmf-sidebar-card primary">
+          <p className="cmf-sidebar-label">Daily Use</p>
+          <h3>CEO Office admin workflow</h3>
+          <p>
+            Create the meeting, capture the MOM while the discussion is fresh, and assign owners
+            before actions fall through the cracks.
+          </p>
+        </div>
+
+        <div className="cmf-sidebar-card">
+          <p className="cmf-sidebar-label">Live Summary</p>
+          <div className="cmf-summary-list">
+            <div>
+              <span>Meeting</span>
+              <strong>{meetingForm.title || 'Untitled meeting'}</strong>
+            </div>
+            <div>
+              <span>Date</span>
+              <strong>{formatPreviewDate(meetingForm.date)}</strong>
+            </div>
+            <div>
+              <span>Participants</span>
+              <strong>{meetingForm.participants.length}</strong>
+            </div>
+            <div>
+              <span>MOM words</span>
+              <strong>{wordCount}</strong>
+            </div>
+            <div>
+              <span>Action items ready</span>
+              <strong>{completedActions}/{actionItems.length}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="cmf-sidebar-card">
+          <p className="cmf-sidebar-label">Submission Preview</p>
+          <pre className="cmf-preview">{JSON.stringify(payloadPreview, null, 2)}</pre>
+        </div>
+      </aside>
     </div>
   );
 }

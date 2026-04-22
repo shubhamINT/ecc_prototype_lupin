@@ -1,0 +1,111 @@
+.cmp-root {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.cmp-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 36px 32px 64px;
+}
+
+.cmp-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #dbe4f0;
+  background: white;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.cmp-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(260px, 320px);
+  gap: 18px;
+  align-items: stretch;
+  margin: 22px 0 28px;
+}
+
+.cmp-hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cmp-eyebrow {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.cmp-title {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.08;
+  letter-spacing: -1px;
+  color: #0f172a;
+  font-weight: 800;
+  max-width: 920px;
+}
+
+.cmp-subtitle {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #64748b;
+  max-width: 760px;
+}
+
+.cmp-meta-card {
+  padding: 22px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #0f172a 0%, #1e40af 100%);
+  color: white;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+}
+
+.cmp-meta-label {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.cmp-meta-value {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+.cmp-meta-copy {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+@media (max-width: 900px) {
+  .cmp-shell {
+    padding: 24px 16px 48px;
+  }
+
+  .cmp-hero {
+    grid-template-columns: 1fr;
+  }
+}

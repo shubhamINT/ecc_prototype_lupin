@@ -5,7 +5,7 @@
 **Client:** Lupin Diagnostics  
 **Prepared by:** Indus Net Technologies (INT.)  
 **Demo date:** 23 April 2026  
-**Phase:** 1 (MVP Prototype — frontend only, no backend, all data mocked)
+**Phase:** 4 (Frontend prototype — Phases 1 to 4 implemented, all data mocked)
 
 ---
 
@@ -77,8 +77,8 @@ ecc_prototype_lupin/
 │   │   │   └── EmailAlertPreview.tsx  # Modal showing simulated T-3/overdue alert email
 │   │   │
 │   │   └── meetings/
-│   │       └── CreateMeetingForm.tsx  # Multi-step form: meeting → MOM → action items
-│   │                                  # STUB — see JSDoc for full spec
+│   │       ├── CreateMeetingForm.tsx   # DONE ✅ — meeting → MOM → action items flow
+│   │       └── CreateMeetingForm.css
 │   │
 │   └── pages/                # Route-level components (one folder per route)
 │       │
@@ -87,11 +87,11 @@ ecc_prototype_lupin/
 │       │   └── LoginPage.css
 │       │
 │       ├── PersonalDashboard/     # Route: /personal-dashboard
-│       │   ├── index.tsx          # DONE ✅ — action owner view for Head of IT
+│       │   ├── index.tsx          # DONE ✅ — action owner view for Rajesh Satope
 │       │   └── PersonalDashboard.css
 │       │
 │       ├── AdminDashboard/        # Route: /admin-dashboard
-│       │   ├── index.tsx          # TODO 🔴 — CEO Office Admin command center
+│       │   ├── index.tsx          # DONE ✅ — CEO Office Admin command center
 │       │   └── AdminDashboard.css
 │       │
 │       ├── CEODashboard/          # Route: /ceo-dashboard
@@ -99,7 +99,8 @@ ecc_prototype_lupin/
 │       │   └── CEODashboard.css
 │       │
 │       ├── CreateMeetingPage/     # Route: /create-meeting
-│       │   └── index.tsx          # TODO 🔴 — meeting + MOM creation flow
+│       │   ├── index.tsx          # DONE ✅ — meeting + MOM creation workflow page
+│       │   └── CreateMeetingPage.css
 │       │
 │       └── EmailPreviewPage/      # Route: /email-preview
 │           └── index.tsx          # TODO 🟡 — email alert demo gallery (partial stub)
@@ -119,9 +120,9 @@ ecc_prototype_lupin/
 |---|---|---|---|
 | `/` | LoginPage | All | ✅ Done |
 | `/personal-dashboard` | PersonalDashboard | Action Owners | ✅ Done |
-| `/admin-dashboard` | AdminDashboard | CEO Office Admin | 🔴 Placeholder |
+| `/admin-dashboard` | AdminDashboard | CEO Office Admin | ✅ Done |
 | `/ceo-dashboard` | CEODashboard | CEO | 🔴 Placeholder |
-| `/create-meeting` | CreateMeetingPage | CEO Office Admin | 🔴 Stub |
+| `/create-meeting` | CreateMeetingPage | CEO Office Admin | ✅ Done |
 | `/email-preview` | EmailPreviewPage | All | 🟡 Partial |
 
 ---
@@ -134,7 +135,7 @@ Defined in `src/types/auth.ts`. All users are mock — no real auth.
 |---|---|---|---|
 | `ceo` | Rajesh Kumar | `/ceo-dashboard` | Purple `#7c3aed` |
 | `ceo-office-admin` | Priya Sharma | `/admin-dashboard` | Cyan `#0891b2` |
-| `head-of-it` | Vikram Singh | `/personal-dashboard` | Blue `#1e40af` |
+| `head-of-it` | Rajesh Satope | `/personal-dashboard` | Blue `#1e40af` |
 | `head-of-finance` | Neha Patel | `/personal-dashboard` | Green `#059669` |
 | `head-of-operations` | Arjun Mehta | `/personal-dashboard` | Amber `#d97706` |
 
@@ -163,78 +164,43 @@ All data lives in `src/data/`. Nothing is fetched from a server.
 
 ### Feature 1 — Login Page with Role Switcher ✅ DONE
 **File:** `src/pages/LoginPage/index.tsx`  
-Role card selector → click → redirect to correct dashboard. Hardcoded 5 roles.  
-**Demo:** Select "Head of IT" → shows Vikram Singh's personal dashboard.
+Role switcher with 3 top-level modes: CEO Office Admin, Action Owner, CEO.  
+When "Action Owner" is selected, the admin can choose the specific owner and route straight to the matching dashboard.  
+**Demo:** Select "Head of IT" → shows Rajesh Satope's personal dashboard.
 
 ---
 
 ### Feature 2 — Personal Action Owner Dashboard ✅ DONE
 **File:** `src/pages/PersonalDashboard/index.tsx`  
-Shows 6 IT action items for Vikram Singh with status badges, progress bars, overdue flag.
-
-**Enhancements needed for demo:**
-- Wire `StatusUpdateModal` on row click (component already built at `src/components/actions/StatusUpdateModal.tsx`)
-- Add "Source Meeting" column showing which meeting each action came from
-- Use `getActionsByOwner('head-of-it')` from `mockActions.ts` instead of hardcoded array
+Shows Rajesh Satope's consolidated IT action list across multiple meetings.  
+Includes source meeting context, red overdue rows, amber deadline warning states, and inline status update dropdowns directly in the table.
 
 ---
 
-### Feature 3 — CEO Office Admin Dashboard 🔴 TODO
+### Feature 3 — CEO Office Admin Dashboard ✅ DONE
 **File:** `src/pages/AdminDashboard/index.tsx`  
 **Description:** Command center for Priya Sharma — all actions, all owners, all departments.
 
-**Must-have elements:**
-1. KPI tiles row at top — use `KPISummaryTiles` component (already built)
-2. Full action items table — all 16 items from `MOCK_ACTIONS`
-   - Columns: ID · Action · Assignee · Department · Meeting · Priority · Due Date · Days Left · Status
-   - Overdue rows: red background highlight
-   - Due ≤3 days: amber highlight
-3. Working filters: Department dropdown + Status dropdown (filter `MOCK_ACTIONS` in state)
-4. Search bar: filter by action title or assignee name
-5. "Create Meeting" button → navigate to `/create-meeting`
-6. "Preview Email Alerts" button → navigate to `/email-preview`
-
-**Data:** Import `MOCK_ACTIONS`, `getActionStats()` from `src/data/mockActions.ts`  
-**Components to use:** `KPISummaryTiles`, `StatusBadge`, `PriorityBadge`, `StatusUpdateModal`  
-**Styles:** Write in `AdminDashboard.css` — match PersonalDashboard design language
-
-**Filter implementation:**
-```tsx
-const [deptFilter, setDeptFilter] = useState('All');
-const [statusFilter, setStatusFilter] = useState('All');
-const [searchQuery, setSearchQuery] = useState('');
-
-const filtered = MOCK_ACTIONS.filter((a) => {
-  if (deptFilter !== 'All' && a.department !== deptFilter) return false;
-  if (statusFilter !== 'All' && a.status !== statusFilter) return false;
-  if (searchQuery && !a.title.toLowerCase().includes(searchQuery.toLowerCase())
-    && !a.assignedTo.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-  return true;
-});
-```
+**Delivered:**
+1. Summary cards for Open, Overdue, Due This Week, and Completed
+2. Full action table with risk highlighting and status modal wiring
+3. Working Department and Status filters
+4. Search by action title or assignee
+5. Direct navigation to Create Meeting and Email Preview
 
 ---
 
-### Feature 4 — Meeting + MOM Creation Flow 🔴 TODO
+### Feature 4 — Meeting + MOM Creation Flow ✅ DONE
 **File:** `src/pages/CreateMeetingPage/index.tsx` + `src/components/meetings/CreateMeetingForm.tsx`  
-**Description:** Multi-step form for CEO Office Admin to log a new meeting.
+**Description:** Working multi-step workflow for the CEO Office admin to create a meeting record from scratch.
 
-**Step 1 — Meeting details:**
-- Title (text input), Date (date picker)
-- Department (select: IT / Finance / Operations / HR / Marketing / Cross-Functional)
-- Participants (multi-select or tag input from MOCK_USERS names)
+**Delivered:**
+1. Meeting Details step with title, date, department, and participant selection
+2. MOM step with a lightweight rich-text editor toolbar for bold, bullets, and numbered lists
+3. Action Items step with dynamic add/remove rows for owner, deadline, and priority
+4. Validation between steps, live summary sidebar, submission preview, success state, and redirect to `/admin-dashboard`
 
-**Step 2 — MOM text:**
-- Large textarea, no rich-text lib needed
-- Placeholder: "Paste or type minutes of meeting..."
-
-**Step 3 — Action items (dynamic list):**
-- Add/remove rows dynamically
-- Each row: Title · Assignee (dropdown from MOCK_USERS) · Due Date · Priority
-- "Add Action Item" button appends new row
-
-**On submit:** Log to console, show success message, redirect to `/admin-dashboard`  
-**Demo:** Create "April Board Review" meeting with 3 action items live during demo
+**Demo:** Create "April Board Review" live, capture the MOM, and assign 3 action items before submitting.
 
 ---
 
@@ -268,25 +234,10 @@ const filtered = MOCK_ACTIONS.filter((a) => {
 
 ---
 
-### Feature 7 — Status Update Modal 🟡 BUILT, needs wiring
+### Feature 7 — Status Update Modal ✅ WIRED
 **File:** `src/components/actions/StatusUpdateModal.tsx`  
-**Status:** Component complete. Needs wiring into PersonalDashboard and AdminDashboard.
-
-**Wire into PersonalDashboard:**
-```tsx
-const [selectedAction, setSelectedAction] = useState<ActionItem | null>(null);
-// on table row click: setSelectedAction(action)
-// render:
-<StatusUpdateModal
-  action={selectedAction}
-  open={!!selectedAction}
-  onClose={() => setSelectedAction(null)}
-  onSave={(updated) => {
-    setActions((prev) => prev.map((a) => a.id === updated.id ? updated : a));
-    setSelectedAction(null);
-  }}
-/>
-```
+**Status:** Wired into `AdminDashboard` for row-level action updates.  
+The personal dashboard uses inline status updates directly inside the list instead of a modal flow.
 
 ---
 
