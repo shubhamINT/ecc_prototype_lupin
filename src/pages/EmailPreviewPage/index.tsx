@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar';
 import StatusUpdateModal from '../../components/actions/StatusUpdateModal';
 import { MOCK_ACTIONS } from '../../data/mockActions';
@@ -33,6 +34,7 @@ function ownerEmail(name: string) {
 }
 
 export default function EmailPreviewPage() {
+  const navigate = useNavigate();
   const [actions, setActions] = useState<ActionItem[]>(MOCK_ACTIONS);
   const [activeScenarioId, setActiveScenarioId] = useState(EMAIL_SCENARIOS[1].id);
   const [statusModalAction, setStatusModalAction] = useState<ActionItem | null>(null);
@@ -72,6 +74,17 @@ export default function EmailPreviewPage() {
       <Navbar />
 
       <main className="ep-body">
+        <button
+          type="button"
+          className="ep-back-btn"
+          onClick={() => navigate('/admin-dashboard')}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Back to Dashboard
+        </button>
+
         <header className="ep-header">
           <div>
             <span className="ep-eyebrow">System Alerts & Reminders</span>

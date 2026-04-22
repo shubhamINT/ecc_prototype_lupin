@@ -181,10 +181,10 @@ ecc_prototype_lupin/
 │   │   └── AuthContext.tsx   # AuthProvider, useAuth hook — login/logout via role
 │   │
 │   ├── utils/
-│   │   ├── dateUtils.ts      # formatDate, getDaysLeft, isOverdue, isDueSoon
 │   │   ├── statusUtils.ts    # STATUS_BG/TEXT/BORDER color maps for badges
-│   │   └── calendarUtils.ts  # generateICS(), buildGoogleCalendarUrl(),
-│   │                         # buildOutlookCalendarUrl() — used by calendar buttons
+│   │   ├── calendarUtils.ts  # generateICS(), buildGoogleCalendarUrl(),
+│   │   │                     # buildOutlookCalendarUrl() — used by calendar buttons
+│   │   └── csvUtils.ts       # toCsvCell() helper shared by dashboard exports
 │   │
 │   ├── components/
 │   │   ├── layout/
@@ -193,12 +193,13 @@ ecc_prototype_lupin/
 │   │   │
 │   │   ├── ui/               # Reusable atomic components
 │   │   │   ├── StatusBadge.tsx              # Colored badge for ActionStatus
-│   │   │   ├── PriorityBadge.tsx            # Colored badge for Priority
 │   │   │   ├── Modal.tsx                    # Generic modal wrapper
 │   │   │   ├── AddToCalendarButton.tsx      # Action deadline → owner's calendar
 │   │   │   │                                # Generates .ics or opens Google URL
 │   │   │   ├── AddMeetingToCalendarButton.tsx  # Meeting → CEO's calendar
 │   │   │   │                                   # Outlook .ics or Google pre-fill
+│   │   │   ├── CalendarDropdown.tsx         # Shared dropdown menu + icons used by
+│   │   │   │                                # both AddToCalendarButton variants
 │   │   │   └── CalendarSyncToast.tsx        # Toast notification shown after
 │   │   │                                    # auto-sync on status update
 │   │   │
@@ -207,13 +208,9 @@ ecc_prototype_lupin/
 │   │   │                              # Triggers calendar sync + toast on save
 │   │   │
 │   │   ├── charts/
-│   │   │   ├── KPISummaryTiles.tsx        # Row of 5 KPI stat cards
 │   │   │   ├── GanttTimeline.tsx          # Horizontal action deadline timeline
 │   │   │   ├── ActionsByDepartmentBar.tsx # Stacked bar chart by dept + status
 │   │   │   └── GanttTimeline.css
-│   │   │
-│   │   ├── email/
-│   │   │   └── EmailAlertPreview.tsx  # Modal showing simulated alert email
 │   │   │
 │   │   └── meetings/
 │   │       ├── CreateMeetingForm.tsx   # Meeting → MOM → action items flow
@@ -349,7 +346,7 @@ Multi-step workflow: meeting details → MOM editor → action items.
 ---
 
 ### Feature 5 — Simulated Email Alert Preview ✅ DONE
-**File:** `src/pages/EmailPreviewPage/index.tsx` + `src/components/email/EmailAlertPreview.tsx`
+**File:** `src/pages/EmailPreviewPage/index.tsx`
 
 **Delivered:**
 1. 3 scenario tabs: Overdue Alert, T-3 Reminder, Upcoming Deadline
@@ -396,7 +393,9 @@ Horizontal timeline from `createdAt` to `dueDateIso` with status-colored bars, T
 - `src/utils/calendarUtils.ts` — ICS generation, Google Calendar URL builder, Outlook URL builder
 - `src/components/ui/AddToCalendarButton.tsx` — action deadline → owner's calendar
 - `src/components/ui/AddMeetingToCalendarButton.tsx` — meeting → CEO's calendar (Outlook .ics or Google pre-fill)
+- `src/components/ui/CalendarDropdown.tsx` — shared dropdown item + calendar icon primitives used by both buttons
 - `src/components/ui/CalendarSyncToast.tsx` — toast shown after auto-sync
+- `src/utils/csvUtils.ts` — shared CSV escaping utility reused by dashboard exports
 
 **Delivered:**
 1. CEO Dashboard upcoming meetings: "Add to Calendar" button → Outlook .ics download or Google Calendar pre-filled URL
@@ -435,7 +434,7 @@ When an agent is assigned a feature:
 1. **Read the feature spec** in this README (§ Feature N above).
 2. **Read the relevant stub files** — page `index.tsx` and component JSDoc comments contain full specs.
 3. **Use existing data** from `src/data/mockActions.ts` and `src/data/mockMeetings.ts` — do NOT create new mock data files.
-4. **Use existing components** — `StatusBadge`, `PriorityBadge`, `Modal`, `KPISummaryTiles`, `ActionsByDepartmentBar`, `StatusUpdateModal`, `EmailAlertPreview`, `AddToCalendarButton`, `AddMeetingToCalendarButton`, `CalendarSyncToast` are all ready to import.
+4. **Use existing components** — `StatusBadge`, `Modal`, `ActionsByDepartmentBar`, `StatusUpdateModal`, `AddToCalendarButton`, `AddMeetingToCalendarButton`, `CalendarDropdown`, `CalendarSyncToast` are all ready to import.
 5. **Match the design language** — copy CSS patterns from `PersonalDashboard.css` and `LoginPage.css`.
 6. **No backend, no API calls** — everything is local state + mock data.
 7. **Run `pnpm build`** after completing work to verify zero TypeScript errors.

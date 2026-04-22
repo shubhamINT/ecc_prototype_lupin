@@ -15,6 +15,27 @@
   gap: 20px;
 }
 
+.ep-back-btn {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #dbe4f0;
+  border-radius: 10px;
+  background: white;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.ep-back-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
 .ep-header {
   display: flex;
   align-items: flex-start;

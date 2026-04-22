@@ -195,31 +195,6 @@
   flex-wrap: wrap;
 }
 
-.admin-quick-filters {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.admin-quick-btn {
-  padding: 9px 12px;
-  border-radius: 999px;
-  border: 1px solid #dbe4f0;
-  background: white;
-  color: #475569;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.admin-quick-btn.active {
-  border-color: var(--color-primary);
-  color: var(--color-primary-dark);
-  background: var(--color-primary-light);
-}
-
 .admin-toolbar-search {
   position: relative;
   flex: 1 1 260px;

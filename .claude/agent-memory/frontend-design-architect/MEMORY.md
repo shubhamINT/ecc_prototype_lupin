@@ -1,1 +1,2 @@
 - [ECC Lupin Diagnostics Design System](project_design_system.md) — Complete color tokens, CSS BEM prefixes, status/priority/dept colors, button styles, breakpoints
+- [Navigation and Filter Patterns](navigation_and_filters.md) — Admin toolbar simplification rule and back-button requirement for Admin-launched secondary pages
