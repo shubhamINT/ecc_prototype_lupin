@@ -13,17 +13,13 @@ import {
   YAxis,
   Tooltip,
 } from 'recharts';
+import { toCsvCell } from '../../utils/csvUtils';
 import './CEODashboard.css';
 
 const TODAY_ISO = '2026-04-22';
 
 const DEPARTMENTS = ['IT', 'Finance', 'Operations', 'HR', 'Marketing'] as const;
 const BAR_COLORS = ['#1e40af', '#059669', '#d97706', '#7c3aed', '#be123c'];
-
-function toCsvCell(value: string | number) {
-  const text = String(value).replace(/"/g, '""');
-  return `"${text}"`;
-}
 
 function dayDiff(startIso: string, endIso: string) {
   const start = new Date(startIso);

@@ -11,6 +11,7 @@ import AddMeetingToCalendarButton from '../../components/ui/AddMeetingToCalendar
 import CalendarSyncToast from '../../components/ui/CalendarSyncToast';
 import { MOCK_MEETINGS } from '../../data/mockMeetings';
 import Navbar from '../../components/layout/Navbar';
+import { toCsvCell } from '../../utils/csvUtils';
 import './AdminDashboard.css';
  
 const DEPT_COLORS: Record<string, { bg: string; text: string }> = {
@@ -62,11 +63,6 @@ const STATUS_DISPLAY: Record<string, string> = {
   completed: 'Completed',
   blocked: 'Blocked',
 };
- 
-function toCsvCell(value: string | number) {
-  const text = String(value).replace(/"/g, '""');
-  return `"${text}"`;
-}
  
 export default function AdminDashboard() {
   const navigate = useNavigate();
