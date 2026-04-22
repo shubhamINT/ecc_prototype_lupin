@@ -1,0 +1,537 @@
+/* ═══════════════════════════════════════════════════════════════
+   CEO Dashboard — CEODashboard.css
+   BEM prefix: ceo-
+   Design tokens: #f8fafc bg, white cards, #7c3aed CEO accent
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Shell ─────────────────────────────────────────────────────── */
+
+.ceo-root {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.ceo-body {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 40px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ── Header ────────────────────────────────────────────────────── */
+
+.ceo-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ceo-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ceo-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.6px;
+  line-height: 1.2;
+}
+
+.ceo-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+.ceo-role-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7c3aed;
+  flex-shrink: 0;
+}
+
+.ceo-date-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #94a3b8;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── KPI row ───────────────────────────────────────────────────── */
+
+.ceo-kpi-row {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.ceo-kpi-tiles {
+  flex: 1;
+  min-width: 0;
+}
+
+.ceo-score-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px 28px;
+  flex-shrink: 0;
+  min-width: 260px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Score ring */
+.ceo-score-ring {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ceo-score-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+
+.ceo-score-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ceo-score-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.ceo-score-period {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.ceo-score-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+  margin-top: 4px;
+  letter-spacing: 0.2px;
+}
+
+/* ── Charts row ────────────────────────────────────────────────── */
+
+.ceo-charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Bar section — ActionsByDepartmentBar fills the card itself */
+.ceo-bar-section {
+  min-width: 0;
+}
+
+/* Donut section */
+.ceo-donut-section {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.ceo-donut-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.ceo-donut-body {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.ceo-donut-ring {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ceo-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.ceo-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.ceo-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.ceo-legend-label {
+  flex: 1;
+  color: #475569;
+  font-weight: 500;
+}
+
+.ceo-legend-count {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 14px;
+  letter-spacing: -0.3px;
+}
+
+/* ── Shared card header ────────────────────────────────────────── */
+
+.ceo-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.ceo-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.ceo-section-count {
+  font-size: 12px;
+  color: #94a3b8;
+  background: #f1f5f9;
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-weight: 500;
+}
+
+/* ── Bottom row ────────────────────────────────────────────────── */
+
+.ceo-bottom-row {
+  display: grid;
+  grid-template-columns: 62% 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ── Department table card ─────────────────────────────────────── */
+
+.ceo-dept-table-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.ceo-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ceo-dept-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ceo-dept-table thead tr {
+  background: #f8fafc;
+}
+
+.ceo-dept-table th {
+  padding: 11px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.ceo-dept-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f8fafc;
+  vertical-align: middle;
+}
+
+.ceo-dept-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ceo-dept-table tbody tr:hover {
+  background: #fafbfc;
+}
+
+.ceo-dept-name {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.ceo-num-cell {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.ceo-num-inprogress {
+  color: #1e40af;
+}
+
+.ceo-num-overdue {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.ceo-num-completed {
+  color: #16a34a;
+}
+
+/* Completion bar in table */
+.ceo-completion-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.ceo-completion-bar {
+  flex: 1;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.ceo-completion-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.ceo-completion-pct {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  min-width: 34px;
+  text-align: right;
+}
+
+/* ── Overdue card ──────────────────────────────────────────────── */
+
+.ceo-overdue-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.ceo-overdue-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ceo-overdue-heading {
+  color: #dc2626;
+}
+
+.ceo-overdue-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+.ceo-overdue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 12px 16px 16px;
+}
+
+.ceo-overdue-item {
+  border-left: 3px solid #dc2626;
+  background: #fff8f8;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: background 0.15s;
+}
+
+.ceo-overdue-item:last-child {
+  margin-bottom: 0;
+}
+
+.ceo-overdue-item:hover {
+  background: #fff1f1;
+}
+
+.ceo-overdue-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ceo-overdue-id {
+  font-family: ui-monospace, Consolas, 'Cascadia Code', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  background: #f1f5f9;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.ceo-overdue-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.ceo-overdue-item-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ceo-overdue-assignee {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.ceo-overdue-days {
+  font-size: 12px;
+  font-weight: 700;
+  color: #dc2626;
+  white-space: nowrap;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+
+@media (max-width: 1200px) {
+  .ceo-bottom-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .ceo-body {
+    padding: 24px 24px 56px;
+  }
+
+  .ceo-kpi-row {
+    flex-direction: column;
+  }
+
+  .ceo-score-card {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .ceo-charts-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ceo-bottom-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ceo-body {
+    padding: 20px 16px 48px;
+    gap: 20px;
+  }
+
+  .ceo-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .ceo-score-card {
+    padding: 20px;
+  }
+
+  .ceo-dept-table-card .ceo-card-header,
+  .ceo-overdue-card .ceo-card-header {
+    padding: 16px 16px;
+  }
+
+  .ceo-dept-table th,
+  .ceo-dept-table td {
+    padding: 12px 12px;
+  }
+}

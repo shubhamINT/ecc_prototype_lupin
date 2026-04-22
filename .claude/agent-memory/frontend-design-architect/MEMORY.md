@@ -1,0 +1,1 @@
+- [ECC Lupin Diagnostics Design System](project_design_system.md) — Complete color tokens, CSS BEM prefixes, status/priority/dept colors, button styles, breakpoints
