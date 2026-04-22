@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import Navbar from '../../components/layout/Navbar';
 import StatusBadge from '../../components/ui/StatusBadge';
 import StatusUpdateModal from '../../components/actions/StatusUpdateModal';
+import AddToCalendarButton from '../../components/ui/AddToCalendarButton';
 import { getActionsByOwner } from '../../data/mockActions';
 import type { Role } from '../../types/auth';
 import type { ActionItem, ActionStatus } from '../../types/actions';
@@ -230,6 +231,7 @@ export default function PersonalDashboard() {
                   <th>Progress</th>
                   <th>Status</th>
                   <th>Update</th>
+                  <th>Calendar</th>
                 </tr>
               </thead>
               <tbody>
@@ -306,8 +308,7 @@ export default function PersonalDashboard() {
                     <select
                       className={`pd-status-select pd-status-select-${getRowState(action)}`}
                       value={action.status}
-                      /* Ensure this is present to prevent row-click crashes */
-                      onClick={(event) => event.stopPropagation()} 
+                      onClick={(event) => event.stopPropagation()}
                       onChange={(event) =>
                         handleStatusUpdate(action.id, event.target.value as ActionStatus)
                       }
@@ -319,6 +320,9 @@ export default function PersonalDashboard() {
                       ))}
                     </select>
                   </td>
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <AddToCalendarButton action={action} compact />
+                    </td>
                   </tr>
                 ))}
               </tbody>

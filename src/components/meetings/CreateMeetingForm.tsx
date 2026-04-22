@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MOCK_USERS } from '../../types/auth';
 import type { Priority } from '../../types/actions';
@@ -72,6 +72,8 @@ const DEPARTMENTS = ['IT', 'Finance', 'Operations', 'HR', 'Marketing', 'Cross-Fu
 const ALL_USERS = Object.values(MOCK_USERS);
 const STEP_TITLES = ['Meeting Details', 'Minutes of Meeting', 'Action Items'] as const;
 const MOM_TEMPLATE = `<p><strong>Agenda:</strong> Review current governance actions and agree next steps.</p><ul><li>Decision taken:</li><li>Escalations discussed:</li><li>Owner follow-ups:</li></ul>`;
+const MAX_TRANSCRIPT_FILE_SIZE = 5 * 1024 * 1024;
+const SUPPORTED_TRANSCRIPT_FILE_EXTENSIONS = ['txt', 'md', 'srt', 'vtt', 'csv', 'json'] as const;
 
 function createEmptyAction(id: string): ActionForm {
   return {
@@ -81,6 +83,14 @@ function createEmptyAction(id: string): ActionForm {
     dueDate: '',
     priority: 'medium',
   };
+}
+
+function isSupportedTranscriptExtension(
+  extension: string
+): extension is (typeof SUPPORTED_TRANSCRIPT_FILE_EXTENSIONS)[number] {
+  return SUPPORTED_TRANSCRIPT_FILE_EXTENSIONS.includes(
+    extension as (typeof SUPPORTED_TRANSCRIPT_FILE_EXTENSIONS)[number]
+  );
 }
 
 function getPlainText(html: string) {
@@ -105,6 +115,7 @@ function formatPreviewDate(isoDate: string) {
 export default function CreateMeetingForm() {
   const navigate = useNavigate();
   const editorRef = useRef<HTMLDivElement | null>(null);
+  const transcriptFileInputRef = useRef<HTMLInputElement | null>(null);
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
@@ -121,6 +132,8 @@ export default function CreateMeetingForm() {
   ]);
   const [momInputMode, setMomInputMode] = useState<'write' | 'transcript'>('write');
   const [transcriptText, setTranscriptText] = useState('');
+  const [transcriptFileName, setTranscriptFileName] = useState('');
+  const [transcriptUploadError, setTranscriptUploadError] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiGenerated, setAiGenerated] = useState(false);
 
@@ -207,6 +220,51 @@ export default function CreateMeetingForm() {
       setAiGenerated(true);
       setMomInputMode('write');
     }, 2600);
+  };
+
+  const handleLoadSampleTranscript = () => {
+    setTranscriptText(SAMPLE_TRANSCRIPT);
+    setTranscriptFileName('');
+    setTranscriptUploadError('');
+  };
+
+  const handleTranscriptFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+    if (!isSupportedTranscriptExtension(extension)) {
+      setTranscriptUploadError(
+        `Unsupported file type. Upload ${SUPPORTED_TRANSCRIPT_FILE_EXTENSIONS.map((ext) => `.${ext}`).join(', ')}.`
+      );
+      setTranscriptFileName('');
+      event.target.value = '';
+      return;
+    }
+
+    if (file.size > MAX_TRANSCRIPT_FILE_SIZE) {
+      setTranscriptUploadError('File is too large. Upload a transcript under 5 MB.');
+      setTranscriptFileName('');
+      event.target.value = '';
+      return;
+    }
+
+    try {
+      const fileText = await file.text();
+      if (!fileText.trim()) {
+        setTranscriptUploadError('Uploaded file is empty. Please choose a file with transcript content.');
+        setTranscriptFileName('');
+        event.target.value = '';
+        return;
+      }
+      setTranscriptText(fileText);
+      setTranscriptFileName(file.name);
+      setTranscriptUploadError('');
+    } catch {
+      setTranscriptUploadError('Unable to read this file. Please upload a plain text transcript.');
+      setTranscriptFileName('');
+      event.target.value = '';
+    }
   };
 
   const validateStep = (targetStep: number) => {
@@ -426,22 +484,45 @@ export default function CreateMeetingForm() {
                 <div className="cmf-transcript-panel">
                   <div className="cmf-transcript-header">
                     <div>
-                      <p className="cmf-transcript-title">Paste your meeting transcript</p>
+                      <p className="cmf-transcript-title">Paste or upload your meeting transcript</p>
                       <p className="cmf-transcript-hint">ECC will extract decisions, escalations, and action items automatically.</p>
                     </div>
                     <button
                       type="button"
                       className="cmf-link-btn"
-                      onClick={() => setTranscriptText(SAMPLE_TRANSCRIPT)}
+                      onClick={handleLoadSampleTranscript}
                     >
                       Load sample
                     </button>
                   </div>
+                  <div className="cmf-transcript-upload-row">
+                    <button
+                      type="button"
+                      className="cmf-link-btn"
+                      onClick={() => transcriptFileInputRef.current?.click()}
+                    >
+                      Upload Transcript File
+                    </button>
+                    <input
+                      ref={transcriptFileInputRef}
+                      type="file"
+                      className="cmf-hidden-file-input"
+                      accept=".txt,.md,.srt,.vtt,.csv,.json,text/plain,text/markdown,text/csv,application/json"
+                      onChange={handleTranscriptFileUpload}
+                    />
+                    {transcriptFileName && <span className="cmf-uploaded-file-name">{transcriptFileName}</span>}
+                  </div>
+                  {transcriptUploadError && (
+                    <p className="cmf-transcript-error">{transcriptUploadError}</p>
+                  )}
                   <textarea
                     className="cmf-transcript-area"
                     value={transcriptText}
-                    onChange={(e) => setTranscriptText(e.target.value)}
-                    placeholder="Paste the raw meeting transcript here. Include speaker names and timestamps if available — ECC uses these to identify owners and assign action items."
+                    onChange={(e) => {
+                      setTranscriptText(e.target.value);
+                      setTranscriptUploadError('');
+                    }}
+                    placeholder="Paste the raw meeting transcript here, or upload a transcript file above. Include speaker names and timestamps if available — ECC uses these to identify owners and assign action items."
                     rows={12}
                   />
                   <div className="cmf-transcript-footer">

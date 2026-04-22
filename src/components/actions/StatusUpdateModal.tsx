@@ -17,6 +17,7 @@ import type { ActionItem, ActionStatus } from '../../types/actions';
 import { useEffect, useState } from 'react';
 import Modal from '../ui/Modal';
 import StatusBadge from '../ui/StatusBadge';
+import AddToCalendarButton from '../ui/AddToCalendarButton';
 
 interface Props {
   action: ActionItem | null;
@@ -75,7 +76,10 @@ export default function StatusUpdateModal({ action, open, onClose, onSave }: Pro
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ background: '#f8fafc', borderRadius: 10, padding: '12px 16px' }}>
           <p style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{action.id} — {action.title}</p>
-          <p style={{ margin: 0, fontSize: 12, color: '#64748b' }}>Due: {action.dueDate} · <StatusBadge status={action.status} /></p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <p style={{ margin: 0, fontSize: 12, color: '#64748b' }}>Due: {action.dueDate} · <StatusBadge status={action.status} /></p>
+            <AddToCalendarButton action={action} />
+          </div>
         </div>
 
         <div>

@@ -8,4 +8,4 @@ git pull origin master
 echo "Building and starting Docker containers..."
 docker compose up -d --build
 
-echo "Done! App is running in Docker (accessible on port 4003)."
+echo "Done! App is running in Docker."
